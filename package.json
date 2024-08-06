@@ -1,0 +1,6 @@
+{
+  "dependencies": { "bun": "^1.1.21", "reflect-metadata": "^0.2.2" },
+  "devDependencies": {
+    "@types/bun": "^1.1.6"
+  }
+}
