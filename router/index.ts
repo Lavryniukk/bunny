@@ -1,4 +1,5 @@
 import 'reflect-metadata';
+import { parseRequestParams } from '../request';
 import { json } from '../response';
 import { HttpRequestHandler, RouteMetadata, RoutesMetadataArray } from '../types';
 
@@ -13,25 +14,7 @@ export class Router {
     const { path, handlerName, method } = routeMetadata;
 
     const handlerFunction = async (req: Request) => {
-      const bodyParameters: { index: number; name?: string }[] =
-        Reflect.getOwnMetadata('body_parameters', service.constructor.prototype, handlerName) || [];
-
-      let body: any;
-      if (bodyParameters.length > 0) {
-        try {
-          body = await req.json();
-        } catch (error) {
-          console.error('Failed to parse request body:', error);
-          return json({ error: 'Invalid request body' }, { status: 400 });
-        }
-      }
-
-      const methodParameters: any[] = [];
-
-      bodyParameters.forEach(({ index, name }) => {
-        methodParameters[index] = name ? body[name] : body;
-      });
-
+      const methodParameters = await parseRequestParams(req, routeMetadata, service);
       const result = await service[handlerName].apply(service, methodParameters);
       return json(result);
     };

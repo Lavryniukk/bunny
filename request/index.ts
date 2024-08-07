@@ -1,25 +1,26 @@
-import { BunnyRequestParams } from '../types';
+import { RouteMetadata } from '../types';
 
-export const parseRequestParams = async (req: Request, routePath: string): Promise<BunnyRequestParams> => {
-  const url = new URL(req.url);
-  const path = url.pathname;
+export const parseRequestParams = async (req: Request, routeMetadata: RouteMetadata, service: any): Promise<any[]> => {
+  const { handlerName } = routeMetadata;
+  let methodParameters: any[] = [];
 
-  const params = parseParams(path, routePath);
-  let body = null;
+  if (req.method !== 'GET') {
+    const body = await req.json();
 
-  if (req.method === 'POST') {
-    try {
-      body = await req.json();
-    } catch (error) {
-      console.error('Failed to parse JSON:', error);
-      body = null;
-    }
+    const bodyParameters = await parseBodyParams(handlerName, service);
+
+    bodyParameters.forEach(({ index, name }) => {
+      methodParameters[index] = name ? body[name] : body;
+    });
   }
 
-  return {
-    body,
-    params,
-  };
+  return methodParameters;
+};
+
+const parseBodyParams = async (handlerName: string, service: any) => {
+  const bodyParameters: { index: number; name?: string }[] =
+    Reflect.getOwnMetadata('body_parameters', service.constructor.prototype, handlerName) || [];
+  return bodyParameters;
 };
 
 export const parseParams = (path: string, routePath: string): Record<string, string> => {

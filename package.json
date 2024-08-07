@@ -7,8 +7,8 @@
     "@types/bun": "^1.1.6"
   },
   "scripts": {
-    "start": "bun index.ts",
+    "start": "bun server.ts",
     "build": "tsc",
-    "dev": "bun --watch index.ts"
+    "dev": "bun --watch server.ts"
   }
 }
