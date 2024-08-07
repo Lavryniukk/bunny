@@ -1,6 +1,14 @@
 {
-  "dependencies": { "bun": "^1.1.21", "reflect-metadata": "^0.2.2" },
+  "dependencies": {
+    "bun": "^1.1.21",
+    "reflect-metadata": "^0.2.2"
+  },
   "devDependencies": {
     "@types/bun": "^1.1.6"
+  },
+  "scripts": {
+    "start": "bun index.ts",
+    "build": "tsc",
+    "dev": "bun --watch index.ts"
   }
 }

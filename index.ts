@@ -1,22 +1,30 @@
-import { Router } from "./router";
-import { HealthService } from "./services/health.service";
+import { Router } from './router';
 
-const router = new Router();
-const healthService = new HealthService();
+export class Bunny {
+  private readonly router: Router;
+  constructor() {
+    this.router = new Router();
+  }
 
-router.addService(healthService);
+  listen(port: number = 8000, callback: () => void = () => {}) {
+    Bun.serve({
+      port,
 
-const server = Bun.serve({
-  async fetch(req) {
-    const path = new URL(req.url).pathname;
-    const handler = router.getHandler(path);
+      fetch: async (req) => {
+        const path = new URL(req.url).pathname;
+        const { handler } = this.router.getHandler(path, req.method);
+        if (handler) {
+          return handler(req);
+        }
 
-    if (handler) {
-      return handler(req);
-    }
+        return new Response('Page not found', { status: 404 });
+      },
+    });
 
-    return new Response("Page not found", { status: 404 });
-  },
-});
+    callback();
+  }
 
-console.log(`Listening on ${server.url}`);
+  addService(service: any) {
+    this.router.addService(service);
+  }
+}
