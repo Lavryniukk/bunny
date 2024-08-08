@@ -1,5 +1,5 @@
 import { Bunny } from '.';
-import { Body, Get, Post } from './decorators';
+import { Body, Get, Param, Post } from './decorators';
 class HealthService {
   @Post('/')
   async check(@Body() cockcer: any) {
@@ -7,11 +7,13 @@ class HealthService {
 
     return { status: 'ok' };
   }
-
-  @Get('/')
-  status(@Body() req) {
-    console.table(req);
-    return { status: req };
+  @Get('/cck')
+  async bg(@Body() db, @Param('id') param) {
+    return { status: 'this is fixed route' };
+  }
+  @Get('/:id')
+  async status(@Param('id') param: string) {
+    return { status: `dynamic with ${param}` };
   }
 }
 

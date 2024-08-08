@@ -4,9 +4,11 @@ export type RequestMethod = 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
 
 export type HttpRequestHandler = {
   method: RequestMethod;
-  handler: (req: Request) => Response | Promise<Response>;
+  handler: HttpRequestHandlerMethod;
   path: string;
 };
+
+export type HttpRequestHandlerMethod = (req: Request) => Response | Promise<Response>;
 
 export type BunnyRequestParams = {
   body: any;
@@ -22,4 +24,5 @@ export type RouteMetadata = {
 };
 export type RoutesMetadataArray = RouteMetadata[];
 
-export type BodyParamsMetadata = Array<{ index: number; name?: string }>;
+export type BodyParamsMetadata = { index: number; name?: string }[];
+export type ParamsMetadata = { index: number; name: string }[];

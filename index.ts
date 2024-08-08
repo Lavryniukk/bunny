@@ -12,7 +12,7 @@ export class Bunny {
 
       fetch: async (req) => {
         const path = new URL(req.url).pathname;
-        const { handler } = this.router.getHandler(path, req.method);
+        const handler = this.router.getDynamicHandler(path, req.method);
         if (handler) {
           return handler(req);
         }

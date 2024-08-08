@@ -1,14 +1,10 @@
 import 'reflect-metadata';
 import { parseRequestParams } from '../request';
 import { json } from '../response';
-import { HttpRequestHandler, RouteMetadata, RoutesMetadataArray } from '../types';
+import { HttpRequestHandler, HttpRequestHandlerMethod, RouteMetadata, RoutesMetadataArray } from '../types';
 
 export class Router {
   private routes: HttpRequestHandler[] = [];
-
-  addRoute(handler: HttpRequestHandler) {
-    this.routes.push(handler);
-  }
 
   registerRoute(routeMetadata: RouteMetadata, service: any) {
     const { path, handlerName, method } = routeMetadata;
@@ -19,16 +15,11 @@ export class Router {
       return json(result);
     };
 
-    const handler: HttpRequestHandler = {
+    this.routes.push({
       method: method,
       handler: handlerFunction,
       path: path,
-    };
-    this.routes.push(handler);
-  }
-
-  getHandler(path: string, method: string): HttpRequestHandler | undefined {
-    return this.routes.find((route) => route.path === path && route.method === method);
+    });
   }
 
   addService(service: any) {
@@ -40,4 +31,28 @@ export class Router {
 
     routeMetadataArray.forEach((r) => this.registerRoute(r, service));
   }
+
+  getDynamicHandler(requestPath: string, method: string): HttpRequestHandlerMethod | undefined {
+    const matchingRoutes = this.routes.filter((route) => route.method === method);
+    return matchingRoutes.find((route) => matchRoute(route.path, requestPath))?.handler;
+  }
+}
+
+function matchRoute(route: string, requestPath: string): boolean {
+  const routeChunks = route.split('/');
+  const urlChunks = requestPath.split('/');
+  if (routeChunks.length !== urlChunks.length) {
+    return false;
+  }
+  for (let i = 0; i < routeChunks.length; i++) {
+    const routeChunk = routeChunks[i];
+    const urlChunk = urlChunks[i];
+    if (routeChunk.startsWith(':')) {
+      continue;
+    }
+    if (routeChunk !== urlChunk) {
+      return false;
+    }
+  }
+  return true;
 }
