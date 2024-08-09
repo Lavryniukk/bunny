@@ -1,33 +1,28 @@
 import 'reflect-metadata';
-import { Constructor, DependencyContainer } from '../core';
+import { DependencyContainer } from '../core';
 import { Exception, InternalServerErrorException } from '../errors';
 import { parseRequestParams } from '../request';
 import { error, json } from '../response';
-import { HttpRequestHandlerMethod, RouteMetadata, RoutesMetadataArray } from '../types';
+import { ClassConstructor, HttpRequestHandler, HttpRequestHandlerMethod, RouteMetadata, RoutesMetadataArray } from '../types';
 
 export class Router {
-  private routes: Array<{
-    method: string;
-    path: string;
-    handler: (req: Request) => Promise<Response>;
-  }> = [];
+  private routes: HttpRequestHandler[] = [];
   private container: DependencyContainer;
 
   constructor(container: DependencyContainer) {
     this.container = container;
   }
 
-  registerController(ControllerClass: Constructor) {
+  registerController(ControllerClass: ClassConstructor) {
     const controller = this.container.resolve(ControllerClass);
     const routeMetadata: RoutesMetadataArray = Reflect.getMetadata('routes', ControllerClass) || [];
-    console.log(routeMetadata);
     routeMetadata.forEach((rm) => {
+      console.log(`# Registered ${rm.method} ${rm.path}`);
       this.registerRoute(rm, controller);
     });
   }
   registerRoute(routeMetadata: RouteMetadata, service: any) {
     const { path, handlerName, method } = routeMetadata;
-    console.log(routeMetadata);
     const handlerFunction = async (req: Request) => {
       const methodParameters = await parseRequestParams(req, routeMetadata, service);
       try {
@@ -38,7 +33,6 @@ export class Router {
           return error(e);
         } else {
           console.log(e);
-          //TODO - this can be logged as error
           return error(new InternalServerErrorException());
         }
       }

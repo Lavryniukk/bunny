@@ -1,28 +1,30 @@
-import { Body, Get, Injectable, Module, Param, Post } from './decorators';
+import { CoreModule, Get, Injectable, Module } from './decorators';
 @Injectable()
 export class HealthController {
-  @Post('/')
-  async check(@Body() cockcer: any) {
-    console.log('Got request: ', cockcer);
-
-    return { status: 'ok' };
-  }
-  @Get('/cck')
-  async bg(@Body() db, @Param('id') param) {
-    throw new Error('goi');
-  }
-  @Get('/:id')
-  async status(@Param('id') param: string) {
-    return { status: `dynamic with ${param}` };
-  }
-}
-
-@Module({
-  controllers: [HealthController],
-})
-export class AppModule {
   @Get('/health')
   health() {
     return 'health';
   }
 }
+
+@Injectable()
+export class CockController {
+  @Get('/cock')
+  cock() {
+    return 'cock';
+  }
+}
+@Module({
+  controllers: [HealthController],
+})
+export class HealthModule {}
+
+@Module({
+  controllers: [CockController],
+})
+export class CockModule {}
+
+@CoreModule({
+  modules: [HealthModule, CockModule],
+})
+export class CoreAppModule {}

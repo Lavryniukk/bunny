@@ -1,4 +1,4 @@
-// ~~~~~~~~~~~~~~~REQUEST TYPES~~~~~~~~~~~~~~~~
+// ~~~~~~~~~~~~~~~REQUEST TYPES~~~~~~~~~~~~~~~~//
 
 export type RequestMethod = 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
 
@@ -15,7 +15,12 @@ export type BunnyRequestParams = {
   params: Record<string, string>;
 };
 
-// ~~~~~~~~~~~~~~~CLASS METADATA TYPES~~~~~~~~~~~~~~~~
+// ~~~~~~~~~~~~~~~CLASS METADATA TYPES~~~~~~~~~~~~~~~~//
+
+export type ModuleMetadata = { controllers?: ClassConstructor[]; providers?: ClassConstructor[] };
+export type CoreModuleMetadata = ModuleMetadata & { modules?: ClassConstructor[] };
+
+//~~~~~~~~~~~~~~~ROUTER METADATA TYPES~~~~~~~~~~~~~~~~//
 
 export type RouteMetadata = {
   method: RequestMethod;
@@ -24,5 +29,11 @@ export type RouteMetadata = {
 };
 export type RoutesMetadataArray = RouteMetadata[];
 
+//~~~~~~~~~~~~~~~PARAMS METADATA TYPES~~~~~~~~~~~~~~~~//
+
 export type BodyParamsMetadata = { index: number; name?: string }[];
 export type ParamsMetadata = { index: number; name: string }[];
+
+//~~~~~~~~~~~~~~~OTHER~~~~~~~~~~~~~~~~//
+
+export type ClassConstructor<T = any> = new (...args: any[]) => T;

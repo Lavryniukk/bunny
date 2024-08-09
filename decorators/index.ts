@@ -1,5 +1,12 @@
-import { Constructor } from '../core';
-import { BodyParamsMetadata, ParamsMetadata, RequestMethod, RoutesMetadataArray } from '../types';
+import {
+  BodyParamsMetadata,
+  ClassConstructor,
+  CoreModuleMetadata,
+  ModuleMetadata,
+  ParamsMetadata,
+  RequestMethod,
+  RoutesMetadataArray,
+} from '../types';
 
 //~~~~~~~~~~~~~~~~~~METHOD DECORATORS~~~~~~~~~~~~~~~~~~//
 export const Route = (method: string, path: string): MethodDecorator => {
@@ -53,8 +60,20 @@ export const Injectable = (): ClassDecorator => {
   };
 };
 
-export function Module(metadata: { controllers?: Constructor[]; providers?: Constructor[] }) {
-  return function (target: Constructor) {
+export function Module(metadata: ModuleMetadata) {
+  return function (target: ClassConstructor) {
+    console.log('Registering submodule');
+
     Reflect.defineMetadata('module:metadata', metadata, target);
+  };
+}
+
+export function CoreModule(metadata: CoreModuleMetadata) {
+  return function (target: ClassConstructor) {
+    if (Reflect.hasMetadata('coremodule:metadata', target)) {
+      throw new Error('You have used core module more then once');
+    }
+    console.log('Registering coremodule');
+    Reflect.defineMetadata('coremodule:metadata', metadata, target);
   };
 }

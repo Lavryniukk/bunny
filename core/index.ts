@@ -1,20 +1,19 @@
 import 'reflect-metadata';
-
-export type Constructor<T = any> = new (...args: any[]) => T;
+import { ClassConstructor } from '../types';
 
 export class DependencyContainer {
   private dependencies: Map<string, any> = new Map();
 
-  register<T>(target: Constructor<T>): void {
+  register<T>(target: ClassConstructor<T>): void {
     const tokens = Reflect.getMetadata('design:paramtypes', target) || [];
-    const injections = tokens.map((token: Constructor) => this.resolve<any>(token));
+    const injections = tokens.map((token: ClassConstructor) => this.resolve<any>(token));
 
     const instance = new target(...injections);
     const name = target.name;
     this.dependencies.set(name, instance);
   }
 
-  resolve<T>(target: Constructor<T>): T {
+  resolve<T>(target: ClassConstructor<T>): T {
     const name = target.name;
     if (!this.dependencies.has(name)) {
       this.register(target);
@@ -22,7 +21,7 @@ export class DependencyContainer {
     return this.dependencies.get(name);
   }
 
-  registerAll(services: Constructor[]): void {
+  registerAll(services: ClassConstructor[]): void {
     services.forEach((service) => this.register(service));
   }
 }

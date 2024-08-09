@@ -1,30 +1,47 @@
-import { Constructor, DependencyContainer } from './core';
+import { DependencyContainer } from './core';
 import { Router } from './router';
+import { ClassConstructor, CoreModuleMetadata, ModuleMetadata } from './types';
 
 export class Bunny {
   private readonly router: Router;
   private readonly container: DependencyContainer;
 
-  constructor(ModuleClass: Constructor) {
+  constructor(ModuleClass: ClassConstructor) {
     this.container = new DependencyContainer();
     this.router = new Router(this.container);
 
-    this.processModule(ModuleClass);
+    this.processCoreModule(ModuleClass);
   }
 
-  private processModule(ModuleClass: Constructor) {
-    const metadata = Reflect.getMetadata('module:metadata', ModuleClass) || {};
+  private processModule(ModuleClass: ClassConstructor) {
+    const metadata: ModuleMetadata = Reflect.getMetadata('module:metadata', ModuleClass) || {};
     const { controllers = [], providers = [] } = metadata;
 
-    // Register providers
     providers.forEach((provider) => {
       this.container.register(provider);
     });
 
-    // Register controllers and their routes
     controllers.forEach((controller) => {
       this.router.registerController(controller);
       this.container.register(controller);
+    });
+  }
+
+  private processCoreModule(CoreModuleClass: ClassConstructor) {
+    const metadata: CoreModuleMetadata = Reflect.getMetadata('coremodule:metadata', CoreModuleClass) || {};
+    const { controllers = [], providers = [], modules = [] } = metadata;
+
+    providers.forEach((provider) => {
+      this.container.register(provider);
+    });
+
+    controllers.forEach((controller) => {
+      this.router.registerController(controller);
+      this.container.register(controller);
+    });
+
+    modules.forEach((module) => {
+      this.processModule(module);
     });
   }
 
