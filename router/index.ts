@@ -1,38 +1,55 @@
 import 'reflect-metadata';
+import { Constructor, DependencyContainer } from '../core';
+import { Exception, InternalServerErrorException } from '../errors';
 import { parseRequestParams } from '../request';
-import { json } from '../response';
-import { HttpRequestHandler, HttpRequestHandlerMethod, RouteMetadata, RoutesMetadataArray } from '../types';
+import { error, json } from '../response';
+import { HttpRequestHandlerMethod, RouteMetadata, RoutesMetadataArray } from '../types';
 
 export class Router {
-  private routes: HttpRequestHandler[] = [];
+  private routes: Array<{
+    method: string;
+    path: string;
+    handler: (req: Request) => Promise<Response>;
+  }> = [];
+  private container: DependencyContainer;
 
+  constructor(container: DependencyContainer) {
+    this.container = container;
+  }
+
+  registerController(ControllerClass: Constructor) {
+    const controller = this.container.resolve(ControllerClass);
+    const routeMetadata: RoutesMetadataArray = Reflect.getMetadata('routes', ControllerClass) || [];
+    console.log(routeMetadata);
+    routeMetadata.forEach((rm) => {
+      this.registerRoute(rm, controller);
+    });
+  }
   registerRoute(routeMetadata: RouteMetadata, service: any) {
     const { path, handlerName, method } = routeMetadata;
-
+    console.log(routeMetadata);
     const handlerFunction = async (req: Request) => {
       const methodParameters = await parseRequestParams(req, routeMetadata, service);
-      const result = await service[handlerName].apply(service, methodParameters);
-      return json(result);
+      try {
+        const result = await service[handlerName].apply(service, methodParameters);
+        return json(result);
+      } catch (e) {
+        if (Exception.isException(e)) {
+          return error(e);
+        } else {
+          console.log(e);
+          //TODO - this can be logged as error
+          return error(new InternalServerErrorException());
+        }
+      }
     };
-
     this.routes.push({
       method: method,
       handler: handlerFunction,
       path: path,
     });
   }
-
-  addService(service: any) {
-    const routeMetadataArray: RoutesMetadataArray = Reflect.getMetadata('routes', service.constructor);
-
-    if (!routeMetadataArray) {
-      return;
-    }
-
-    routeMetadataArray.forEach((r) => this.registerRoute(r, service));
-  }
-
-  getDynamicHandler(requestPath: string, method: string): HttpRequestHandlerMethod | undefined {
+  getHandler(requestPath: string, method: string): HttpRequestHandlerMethod | undefined {
     const matchingRoutes = this.routes.filter((route) => route.method === method);
     return matchingRoutes.find((route) => matchRoute(route.path, requestPath))?.handler;
   }

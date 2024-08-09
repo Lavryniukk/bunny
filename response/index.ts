@@ -1,4 +1,6 @@
-export const json = (data: any, init?: ResponseInit) => {
+import { Exception } from '../errors';
+
+export const json = (data: any, init?: ResponseInit): Response => {
   return Response.json(data, {
     ...init,
     headers: {
@@ -8,4 +10,13 @@ export const json = (data: any, init?: ResponseInit) => {
       'Access-Control-Allow-Headers': 'Content-Type',
     },
   });
+};
+
+export const error = (err: Exception): Response => {
+  return Response.json(
+    { message: err.message },
+    {
+      status: err.status,
+    }
+  );
 };
