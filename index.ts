@@ -31,9 +31,7 @@ export class Bunny {
     const metadata: CoreModuleMetadata = Reflect.getMetadata('coremodule:metadata', CoreModuleClass) || {};
     const { controllers = [], providers = [], modules = [] } = metadata;
 
-    providers.forEach((provider) => {
-      this.container.register(provider);
-    });
+    providers.forEach(this.container.register);
 
     controllers.forEach((controller) => {
       this.router.registerController(controller);

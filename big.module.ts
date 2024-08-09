@@ -8,10 +8,19 @@ export class HealthController {
 }
 
 @Injectable()
-export class CockController {
-  @Get('/cock')
+export class CockService {
   cock() {
-    return 'cock';
+    return 'yes';
+  }
+}
+
+@Injectable()
+export class CockController {
+  constructor(private cockService: CockService) {}
+
+  @Get('/cock')
+  cocks() {
+    return this.cockService.cock();
   }
 }
 @Module({
@@ -21,6 +30,7 @@ export class HealthModule {}
 
 @Module({
   controllers: [CockController],
+  providers: [CockService],
 })
 export class CockModule {}
 
