@@ -1,4 +1,5 @@
 // ~~~~~~~~~~~~~~~REQUEST TYPES~~~~~~~~~~~~~~~~//
+export type BunnyRequest = Request & Record<string,unknown>
 
 export type RequestMethod = 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
 
@@ -37,3 +38,8 @@ export type ParamsMetadata = { index: number; name: string }[];
 //~~~~~~~~~~~~~~~OTHER~~~~~~~~~~~~~~~~//
 
 export type ClassConstructor<T = any> = new (...args: any[]) => T;
+
+
+//~~~~~~~~~~~~~~~MIDDLEWARE~~~~~~~~~~~~~~~~//
+
+export type Middleware = (req: BunnyRequest , next: (req: BunnyRequest) => Promise<Response> | Response) => Response | Promise<Response>;

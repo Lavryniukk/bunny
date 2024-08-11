@@ -3,7 +3,6 @@ import { BodyParamsMetadata, ParamsMetadata, RouteMetadata } from '../types';
 export const parseRequestParams = async (req: Request, routeMetadata: RouteMetadata, service: any): Promise<any[]> => {
   const { handlerName } = routeMetadata;
   let methodParameters: any[] = [];
-
   if (req.method !== 'GET') {
     const body = await req.json();
     const bodyParametersMetadata = await parseBodyParams(handlerName, service);

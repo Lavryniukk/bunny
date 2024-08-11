@@ -1,15 +1,17 @@
 import { DependencyContainer } from './core';
+import{type Middleware } from './types';
+import { MiddlewareFactory } from './middleware';
 import { Router } from './router';
 import { ClassConstructor, CoreModuleMetadata, ModuleMetadata } from './types';
-
 export class Bunny {
   private readonly router: Router;
   private readonly container: DependencyContainer;
-
+  private middlewareFactory:MiddlewareFactory 
   constructor(ModuleClass: ClassConstructor) {
+    console.clear();
     this.container = new DependencyContainer();
     this.router = new Router(this.container);
-
+    this.middlewareFactory = new MiddlewareFactory();
     this.processCoreModule(ModuleClass);
   }
 
@@ -50,12 +52,16 @@ export class Bunny {
         const path = new URL(req.url).pathname;
         const handler = this.router.getHandler(path, req.method);
         if (handler) {
-          return handler(req);
+          return this.middlewareFactory.applyMiddleware(req,handler);
         }
         return new Response('Page not found', { status: 404 });
       },
     });
 
     callback();
+  }
+
+  addMiddleware(middleware: Middleware){
+   this.middlewareFactory.addMiddleware(middleware);
   }
 }

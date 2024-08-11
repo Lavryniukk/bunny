@@ -9,7 +9,7 @@ export class HealthController {
 
 @Injectable()
 export class CockService {
-  cock() {
+  cock(): string {
     return 'yes';
   }
 }
