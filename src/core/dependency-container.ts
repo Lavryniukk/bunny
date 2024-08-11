@@ -5,6 +5,9 @@ export class DependencyContainer {
   private dependencies: Map<string, any> = new Map();
 
   register<T>(target: ClassConstructor<T>): void {
+    if(!target){
+      console.error('Cannot register a null target');
+    }
     const tokens = Reflect.getMetadata('design:paramtypes', target) || [];
     const injections = tokens.map((token: ClassConstructor) => this.resolve<any>(token));
 

@@ -30,7 +30,7 @@ export class Router {
         return json(result);
       } catch (e) {
         if (Exception.isException(e)) {
-          return error(e);
+          return error(e as Exception);
         } else {
           console.log(e);
           return error(new InternalServerErrorException());

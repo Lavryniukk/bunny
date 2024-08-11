@@ -31,7 +31,7 @@ export const Get = (path: string): MethodDecorator => Route('GET', path);
 export const Post = (path: string): MethodDecorator => Route('POST', path);
 
 //~~~~~~~~~~~~~~~~~~PARAMS DECORATORS~~~~~~~~~~~~~~~~~~//
-export const Body = (propertyName?: string): ParameterDecorator => {
+export const Body = (propertyName?: string)  => {
   return (target: Object, propertyKey: string | symbol, parameterIndex: number) => {
     const existingBodyParameters: BodyParamsMetadata = Reflect.getOwnMetadata('body_parameters', target, propertyKey) || [];
     existingBodyParameters.push({ index: parameterIndex, name: propertyName });
@@ -39,8 +39,8 @@ export const Body = (propertyName?: string): ParameterDecorator => {
   };
 };
 
-export const Param = (paramName: string): ParameterDecorator => {
-  return (target: Object, propertyKey: string | symbol | undefined, parameterIndex: number) => {
+export const Param = (paramName: string)  => {
+  return (target: Object, propertyKey: string | symbol , parameterIndex: number) => {
     const existingParams: ParamsMetadata = Reflect.getOwnMetadata('parameters', target, propertyKey) || [];
 
     existingParams.push({

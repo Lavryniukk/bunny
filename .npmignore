@@ -1,0 +1,8 @@
+./tests
+./.git
+./.vscode
+./.env
+./src
+./tsconfig.json
+./.gitignore
+./plan.md
