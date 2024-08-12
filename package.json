@@ -1,8 +1,8 @@
 {
   "name": "@bunny/core",
-  "version": "0.1.0",
   "description": "Blazingly fast object-oriented wrapper for Bun",
   "main":"./dist/index.d.ts",
+  "version": "0.0.1",
   "keywords": [
     "bun",
     "nest",
@@ -29,6 +29,7 @@
   "scripts": {
     "start": "bun server.ts",
     "build": "tsc",
-    "dev": "bun --watch server.ts"
+    "dev": "bun --watch server.ts",
+    "prepublishOnly": "rm -rf dist && bun run tsc"
   }
 }
