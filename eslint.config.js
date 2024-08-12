@@ -1,4 +1,3 @@
-// eslint.config.js
 module.exports = {
     root: true,
     env: {
@@ -24,27 +23,23 @@ module.exports = {
         'import',
     ],
     rules: {
-        // Basic ESLint rules
         'no-console': 'warn',
-        'no-unused-vars': 'off', // handled by @typescript-eslint
+        'no-unused-vars': 'off',
         'no-var': 'error',
         'prefer-const': 'error',
         'semi': ['error', 'always'],
         'quotes': ['error', 'single'],
         'eqeqeq': ['error', 'always'],
 
-        // TypeScript rules
         '@typescript-eslint/explicit-module-boundary-types': 'off',
         '@typescript-eslint/no-unused-vars': ['error'],
 
-        // Prettier rules
         'prettier/prettier': ['error', {
             singleQuote: true,
             semi: true,
             trailingComma: 'es5',
         }],
 
-        // Import rules
         'import/order': ['error', {
             'groups': ['builtin', 'external', 'internal'],
             'pathGroups': [
@@ -64,4 +59,3 @@ module.exports = {
         'import/namespace': 'error',
     },
 };
-
