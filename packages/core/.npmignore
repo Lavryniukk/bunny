@@ -12,4 +12,5 @@ tslint.json
 tsconfig.json
 .prettierrc
 
-*.tsbuildinfo/plan.md
+*.tsbuildinfo
+plan.md

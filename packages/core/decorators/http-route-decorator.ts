@@ -1,6 +1,7 @@
 
 import { RequestMethod, RoutesMetadataArray } from '../types';
-import 'reflect-metadata'
+import 'reflect-metadata';
+
 export const Route = (method: string, path: string): MethodDecorator => {
   return (target: any, propertyKey: string | symbol, descriptor: PropertyDescriptor) => {
     if (!Reflect.hasMetadata('routes', target.constructor)) {
