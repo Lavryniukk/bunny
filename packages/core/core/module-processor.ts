@@ -11,13 +11,11 @@ export class ModuleProcessor {
     this.router = router;
   }
 
-  private processModule(ModuleClass: ClassConstructor) {
+  public processModule(ModuleClass: ClassConstructor) {
     const metadata: ModuleMetadata = Reflect.getMetadata('module:metadata', ModuleClass) || {};
     const { controllers = [], providers = [] } = metadata;
 
-    providers.forEach((provider) => {
-      this.container.register(provider);
-    });
+    providers.forEach(this.container.register);
 
     controllers.forEach((controller) => {
       this.router.registerController(controller);

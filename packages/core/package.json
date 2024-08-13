@@ -2,7 +2,7 @@
   "name": "@bunnyts/core",
   "description": "Blazingly fast object-oriented wrapper for Bun",
   "main": "./dist/index.js",
-  "version": "0.0.5",
+  "version": "0.0.7",
   "keywords": [
     "bun",
     "framework"
@@ -12,6 +12,7 @@
   "dependencies": {
     "@bunnyts/core": "^0.0.5",
     "bun": "^1.1.21",
+    "jest": "^29.7.0",
     "reflect-metadata": "^0.2.2"
   },
   "publishConfig": {

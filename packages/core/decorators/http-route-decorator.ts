@@ -1,4 +1,3 @@
-
 import { RequestMethod, RoutesMetadataArray } from '../types';
 import 'reflect-metadata';
 
@@ -20,5 +19,5 @@ export const Route = (method: string, path: string): MethodDecorator => {
   };
 };
 
-export const Get = (path: string): MethodDecorator => Route('GET', path);
-export const Post = (path: string): MethodDecorator => Route('POST', path);
+export const Get = (path?: string): MethodDecorator => Route('GET', path || '/');
+export const Post = (path?: string): MethodDecorator => Route('POST', path || '/');

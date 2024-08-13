@@ -8,12 +8,12 @@ export class Bunny {
   private readonly router: Router;
   private readonly middlewareFactory: MiddlewareFactory;
   private readonly processor: ModuleProcessor;
-
+  private readonly diContainer: DependencyContainer;
   constructor(ModuleClass: ClassConstructor) {
     console.clear();
-    const diContainer = new DependencyContainer();
-    this.router = new Router(diContainer);
-    this.processor = new ModuleProcessor(diContainer,this.router);
+     this.diContainer = new DependencyContainer();
+    this.router = new Router(this.diContainer);
+    this.processor = new ModuleProcessor(this.diContainer,this.router);
     this.middlewareFactory = new MiddlewareFactory();
     this.processor.processCoreModule(ModuleClass);
   }

@@ -17,7 +17,6 @@ export class Router {
     const controller = this.container.resolve(ControllerClass);
     const routeMetadata: RoutesMetadataArray = Reflect.getMetadata('routes', ControllerClass) || [];
     routeMetadata.forEach((rm) => {
-      console.log(`# Registered ${rm.method} ${rm.path}`);
       this.registerRoute(rm, controller);
     });
   }
