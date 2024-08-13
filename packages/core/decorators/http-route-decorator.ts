@@ -21,3 +21,6 @@ export const Route = (method: string, path: string): MethodDecorator => {
 
 export const Get = (path?: string): MethodDecorator => Route('GET', path || '/');
 export const Post = (path?: string): MethodDecorator => Route('POST', path || '/');
+export const Put = (path?: string): MethodDecorator => Route('PUT', path || '/');
+export const Patch = (path?: string): MethodDecorator => Route('PATCH', path || '/');
+export const Delete = (path?: string): MethodDecorator => Route('DELETE', path || '/');
