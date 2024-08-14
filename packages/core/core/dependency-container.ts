@@ -9,6 +9,7 @@ export class DependencyContainer {
       console.error('Cannot register a null target');
     }
     const tokens = Reflect.getMetadata('design:paramtypes', target) || [];
+
     if (!this.dependencies) {
       console.error('Something really strange happened, dependencies is null');
     }

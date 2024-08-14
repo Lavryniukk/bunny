@@ -1,68 +1,83 @@
 import 'reflect-metadata';
 import { DependencyContainer } from '../core';
-import { Exception, InternalServerErrorException } from '../errors';
-import { parseRequestParams } from '../request';
+import { Exception, InternalServerErrorException } from '../exceptions';
+import { RequestParameterParser } from '../request';
 import { error, json } from '../response';
-import { ClassConstructor, HttpRequestHandler, HttpRequestHandlerMethod, RouteMetadata, RoutesMetadataArray } from '../types';
+import {
+  ClassConstructor,
+  HttpRequestHandler,
+  HttpRequestHandlerMethod,
+  RouteMetadata,
+  RoutesMetadataArray,
+  RequestMethod,
+} from '../types';
 
 export class Router {
-  private routes: HttpRequestHandler[] = [];
-  private container: DependencyContainer;
+  routes: Map<RequestMethod, HttpRequestHandler[]> = new Map();
+  private readonly container: DependencyContainer;
 
   constructor(container: DependencyContainer) {
     this.container = container;
   }
 
-  registerController(ControllerClass: ClassConstructor) {
+  getHandler(requestPath: string, method: RequestMethod): HttpRequestHandlerMethod | undefined {
+    const matchingRoutes = this.routes.get(method) || [];
+    return matchingRoutes.find((route) => this.matchRoute(route.path, requestPath))?.handler;
+  }
+
+  registerController(ControllerClass: ClassConstructor): void {
     const controller = this.container.resolve(ControllerClass);
     const routeMetadata: RoutesMetadataArray = Reflect.getMetadata('routes', ControllerClass) || [];
-    routeMetadata.forEach((rm) => {
-      this.registerRoute(rm, controller);
-    });
+    const requestParameterParser = new RequestParameterParser(controller);
+
+    routeMetadata.forEach((rm) => this.registerRoute(rm, controller, requestParameterParser));
   }
-  registerRoute(routeMetadata: RouteMetadata, service: any) {
+
+  registerRoute(routeMetadata: RouteMetadata, controller: any, requestParameterParser: RequestParameterParser): void {
     const { path, handlerName, method } = routeMetadata;
-    const handlerFunction = async (req: Request) => {
-      const methodParameters = await parseRequestParams(req, routeMetadata, service);
+
+    const handlerFunction = this.createHandlerFunction(controller, handlerName, routeMetadata, requestParameterParser);
+
+    if (!this.routes.has(method)) {
+      this.routes.set(method, []);
+    }
+    this.routes.get(method)!.push({ method, handler: handlerFunction, path });
+  }
+
+  createHandlerFunction(
+    controller: any,
+    handlerName: string,
+    routeMetadata: RouteMetadata,
+    requestParameterParser: RequestParameterParser
+  ): HttpRequestHandlerMethod {
+    return async (req: Request) => {
       try {
-        const result = await service[handlerName].apply(service, methodParameters);
+        const methodParameters = await requestParameterParser.parseRequestParams(req, routeMetadata);
+        const result = await controller[handlerName].apply(controller, methodParameters);
         return json(result);
       } catch (e) {
-        if (Exception.isException(e)) {
-          return error(e as Exception);
-        } else {
-          console.log(e);
-          return error(new InternalServerErrorException());
-        }
+        return this.handleError(e);
       }
     };
-    this.routes.push({
-      method: method,
-      handler: handlerFunction,
-      path: path,
-    });
   }
-  getHandler(requestPath: string, method: string): HttpRequestHandlerMethod | undefined {
-    const matchingRoutes = this.routes.filter((route) => route.method === method);
-    return matchingRoutes.find((route) => matchRoute(route.path, requestPath))?.handler;
-  }
-}
 
-function matchRoute(route: string, requestPath: string): boolean {
-  const routeChunks = route.split('/');
-  const urlChunks = requestPath.split('/');
-  if (routeChunks.length !== urlChunks.length) {
-    return false;
-  }
-  for (let i = 0; i < routeChunks.length; i++) {
-    const routeChunk = routeChunks[i];
-    const urlChunk = urlChunks[i];
-    if (routeChunk.startsWith(':')) {
-      continue;
+  handleError(e: unknown): Response {
+    if (Exception.isException(e)) {
+      return error(e as Exception);
+    } else {
+      console.error('Unhandled error:', e);
+      return error(new InternalServerErrorException());
     }
-    if (routeChunk !== urlChunk) {
+  }
+
+  matchRoute(route: string, requestPath: string): boolean {
+    const routeChunks = route.split('/');
+    const urlChunks = requestPath.split('/');
+
+    if (routeChunks.length !== urlChunks.length) {
       return false;
     }
+
+    return routeChunks.every((routeChunk, i) => routeChunk.startsWith(':') || routeChunk === urlChunks[i]);
   }
-  return true;
 }

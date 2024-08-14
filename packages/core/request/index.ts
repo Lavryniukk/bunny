@@ -1,56 +1,72 @@
+import { BodyParamsMetadataKey, QueryParamsMetadataKey } from '../constants';
 import { BodyParamsMetadata, ParamsMetadata, RouteMetadata } from '../types';
 
-export const parseRequestParams = async (req: Request, routeMetadata: RouteMetadata, service: any): Promise<any[]> => {
-  const { handlerName } = routeMetadata;
-  let methodParameters: any[] = [];
-  if (req.method !== 'GET') {
+export class RequestParameterParser {
+  constructor(private readonly controller: any) {}
+
+  public async parseRequestParams(req: Request, routeMetadata: RouteMetadata): Promise<any[]> {
+    const { handlerName, method } = routeMetadata;
+    const methodParameters: any[] = [];
+
+    if (method !== 'GET') {
+      await this.parseBodyParameters(req, handlerName, methodParameters);
+    }
+
+    await this.parseQueryParameters(req, routeMetadata, methodParameters);
+
+    return methodParameters;
+  }
+
+  async parseBodyParameters(req: Request, handlerName: string, methodParameters: any[]): Promise<void> {
     const body = await req.json();
-    const bodyParametersMetadata = await parseBodyParams(handlerName, service);
-    bodyParametersMetadata.map(({ index, name }) => {
+    const bodyParametersMetadata = this.getBodyParamsMetadata(handlerName);
+
+    bodyParametersMetadata.forEach(({ index, name }) => {
       methodParameters[index] = name ? body[name] : body;
     });
   }
 
-  const parametersMetadata: ParamsMetadata =
-    Reflect.getOwnMetadata('parameters', service.constructor.prototype, routeMetadata.handlerName) || [];
-  if (parametersMetadata.length > 0) {
-    const foundParams = parseParams(req, routeMetadata, service);
-    parametersMetadata.map((paramMetadata) => {
-      methodParameters[paramMetadata.index] = foundParams[paramMetadata.name];
-    });
-  }
+  async parseQueryParameters(req: Request, routeMetadata: RouteMetadata, methodParameters: any[]): Promise<void> {
+    const parametersMetadata = this.getQueryParamsMetadata(routeMetadata.handlerName);
 
-  return methodParameters;
-};
-
-const parseBodyParams = async (handlerName: string, service: any): Promise<BodyParamsMetadata> => {
-  return Reflect.getOwnMetadata('body_parameters', service.constructor.prototype, handlerName) || [];
-};
-
-export const parseParams = (req: Request, routeMetadata: RouteMetadata, service: any): Record<string, any> => {
-  const { pathname } = new URL(req.url);
-  let params: Record<string, any> = {};
-
-  const routeChunks = routeMetadata.path.split('/');
-  const urlChunks = pathname.split('/');
-
-  if (routeChunks.length !== urlChunks.length) {
-    return {};
-  }
-
-  for (let i = 0; i < routeChunks.length; i++) {
-    const routeChunk = routeChunks[i];
-    const urlChunk = urlChunks[i];
-
-    if (routeChunk.startsWith(':')) {
-      params[routeChunk.slice(1)] = urlChunk;
-      continue;
+    if (parametersMetadata.length > 0) {
+      const foundParams = this.parseParams(req, routeMetadata);
+      parametersMetadata.forEach((paramMetadata) => {
+        methodParameters[paramMetadata.index] = foundParams[paramMetadata.name];
+      });
     }
+  }
 
-    if (routeChunk !== urlChunk) {
+  getBodyParamsMetadata(handlerName: string): BodyParamsMetadata {
+    return Reflect.getOwnMetadata(BodyParamsMetadataKey, this.controller.constructor.prototype, handlerName) || [];
+  }
+
+  getQueryParamsMetadata(handlerName: string): ParamsMetadata {
+    return Reflect.getOwnMetadata(QueryParamsMetadataKey, this.controller.constructor.prototype, handlerName) || [];
+  }
+
+  parseParams(req: Request, routeMetadata: RouteMetadata): Record<string, string> {
+    const { pathname } = new URL(req.url);
+    const routeChunks = routeMetadata.path.split('/');
+    const urlChunks = pathname.split('/');
+
+    if (routeChunks.length !== urlChunks.length) {
       return {};
     }
-  }
 
-  return params;
-};
+    const params: Record<string, string> = {};
+
+    for (let i = 0; i < routeChunks.length; i++) {
+      const routeChunk = routeChunks[i];
+      const urlChunk = urlChunks[i];
+
+      if (routeChunk.startsWith(':')) {
+        params[routeChunk.slice(1)] = urlChunk;
+      } else if (routeChunk !== urlChunk) {
+        return {};
+      }
+    }
+
+    return params;
+  }
+}

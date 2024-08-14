@@ -1,4 +1,4 @@
-import { Exception } from '../errors';
+import { Exception } from '../exceptions';
 
 const HEADERS = {
   'Content-Type': 'application/json',

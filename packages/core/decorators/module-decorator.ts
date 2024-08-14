@@ -1,8 +1,8 @@
-
-import {ModuleMetadata, ClassConstructor} from '../types'
+import { ModuleMetadataKey } from '../constants';
+import { ModuleMetadata, ClassConstructor } from '../types';
 import 'reflect-metadata';
 export function Module(metadata: ModuleMetadata) {
   return function (target: ClassConstructor) {
-    Reflect.defineMetadata('module:metadata', metadata, target);
+    Reflect.defineMetadata(ModuleMetadataKey, metadata, target);
   };
 }
