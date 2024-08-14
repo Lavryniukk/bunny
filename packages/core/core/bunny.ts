@@ -1,8 +1,8 @@
-import { DependencyContainer } from ".";
-import { MiddlewareFactory } from "../middleware";
-import { Router } from "../router";
-import { ClassConstructor, Middleware } from "../types";
-import { ModuleProcessor } from "./module-processor";
+import { DependencyContainer } from '.';
+import { MiddlewareFactory } from '../middleware';
+import { Router } from '../router';
+import { ClassConstructor, Middleware, RequestMethod } from '../types';
+import { ModuleProcessor } from './module-processor';
 
 export class Bunny {
   private readonly router: Router;
@@ -11,9 +11,9 @@ export class Bunny {
   private readonly diContainer: DependencyContainer;
   constructor(ModuleClass: ClassConstructor) {
     console.clear();
-     this.diContainer = new DependencyContainer();
+    this.diContainer = new DependencyContainer();
     this.router = new Router(this.diContainer);
-    this.processor = new ModuleProcessor(this.diContainer,this.router);
+    this.processor = new ModuleProcessor(this.diContainer, this.router);
     this.middlewareFactory = new MiddlewareFactory();
     this.processor.processCoreModule(ModuleClass);
   }
@@ -23,7 +23,7 @@ export class Bunny {
       port,
       fetch: async (req) => {
         const path = new URL(req.url).pathname;
-        const handler = this.router.getHandler(path, req.method);
+        const handler = this.router.getHandler(path, req.method as RequestMethod);
         if (handler) {
           return this.middlewareFactory.applyMiddleware(req, handler);
         }
