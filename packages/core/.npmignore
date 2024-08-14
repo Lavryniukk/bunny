@@ -5,6 +5,7 @@
 # definitions
 !**/*.d.ts
 !*.d.ts
+bun.lockb:
 
 # configuration
 package-lock.json
