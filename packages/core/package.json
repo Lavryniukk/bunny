@@ -23,7 +23,7 @@
     "reflect-metadata": "^0.2.2"
   },
   "devDependencies": {
-    "@types/bun": "^1.1.6",
+    "@types/bun": "^1.1.6"
   },
   "scripts": {
     "prepublishOnly": "rm -rf dist && bun run tsc"
