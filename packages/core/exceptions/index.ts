@@ -48,6 +48,12 @@ export class ConflictException extends Exception {
   }
 }
 
+export class IamateapotException extends Exception {
+  constructor(message = 'I am a teapot') {
+    super(428, message);
+    console.log('A teapot? Really?');
+  }
+}
 export class InternalServerErrorException extends Exception {
   constructor(message = 'Internal Server Error') {
     super(500, message);
@@ -57,6 +63,7 @@ export class InternalServerErrorException extends Exception {
 export class NotImplementedException extends Exception {
   constructor(message = 'Not Implemented') {
     super(501, message);
+    console.log('You must be joking... A teapot? Really?');
   }
 }
 

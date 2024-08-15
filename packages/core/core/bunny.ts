@@ -1,4 +1,5 @@
 import { DependencyContainer } from '.';
+import 'reflect-metadata';
 import { MiddlewareFactory } from '../middleware';
 import { Router } from '../router';
 import { ClassConstructor, Middleware, RequestMethod } from '../types';

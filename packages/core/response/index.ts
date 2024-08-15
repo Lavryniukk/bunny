@@ -16,7 +16,7 @@ export const json = (data: any, init?: ResponseInit): Response => {
 
 export const error = (err: Exception): Response => {
   return Response.json(
-    { message: err.message },
+    { ...err },
     {
       status: err.status,
       headers: HEADERS,

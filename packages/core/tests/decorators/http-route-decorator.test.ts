@@ -1,5 +1,5 @@
-import { Route } from '@bunnyts/core';
 import { describe, test, expect } from 'bun:test';
+import { Route } from 'decorators';
 import 'reflect-metadata';
 
 describe('HttpRouteDecorator', () => {

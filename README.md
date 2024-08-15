@@ -6,12 +6,12 @@
 
 #### Main
 1. Application lifecycle management
-   - Application class
-   - Module class
+   - Application class #Done
+   - Module class #Done
 2. Decorators
    - `@Module()` #Done
    - `@Injectable()` #Done
-   - `@Controller()`
+   - `@Controller()` #Done
 3. Request handling
    - Router #Done
    - Middleware pipeline #Done
