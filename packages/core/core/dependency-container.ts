@@ -1,37 +1,88 @@
-import { ControllerMetadataKey, InjectableMetadataKey } from '../constants';
 import 'reflect-metadata';
-import { ClassConstructor } from 'types';
+import { ClassConstructor, InjectionToken, Token } from 'types';
+
+type LifecycleType = 'singleton' | 'transient';
+
+class DependencyError extends Error {
+  constructor(message: string, token: Token) {
+    if (token instanceof InjectionToken) {
+      super(`${message}: ${token.name}`);
+    } else {
+      super(`${message}: ${token.toString()}`);
+    }
+  }
+}
+
+class CircularDependencyError extends DependencyError {
+  constructor(dependency: Token) {
+    super(`Circular dependency detected`, dependency);
+  }
+}
+
+class DependencyResolutionError extends DependencyError {
+  constructor(dependency: Token) {
+    super(`Failed to resolve dependency`, dependency);
+  }
+}
 
 export class DependencyContainer {
-  public dependencies: Map<string, any> = new Map();
+  private dependencies: Map<Token, any> = new Map();
+  private resolving: Set<Token> = new Set();
 
-  register<T>(target: ClassConstructor<T>): void {
-    if (!target) {
-      console.error('Cannot register a null target');
+  register<T>(
+    token: Token,
+    target: ClassConstructor<T>,
+    lifecycle: LifecycleType = 'singleton'
+  ): void {
+    if (!token || !target) {
+      throw new Error('Invalid registration: token and target must be provided');
     }
-    const injectable = Reflect.getMetadata(InjectableMetadataKey, target);
-    const controller = Reflect.getMetadata(ControllerMetadataKey, target);
-    console.log('Registering: ', target.name, ' as ' + (injectable ? 'Injectable' : 'Controller'));
-    const tokens = Reflect.getMetadata('design:paramtypes', target) || [];
-    const injections = tokens.map((token: ClassConstructor) => this.resolve<any>(token));
-
-    const instance = new target(...injections);
-    const name = target.name;
-    this.dependencies.set(name, instance);
+    this.dependencies.set(token, { target, lifecycle, instance: null });
   }
 
-  resolve<T>(target: ClassConstructor<T> | string): T {
-    const name = typeof target === 'string' ? target : target.name;
-    console.log('Resolving: ', name);
-    if (!this.dependencies.has(name)) {
-      if (typeof target === 'string') {
-        throw new Error(`No provider for ${name}`);
+  resolve<T>(token: Token): T {
+    if (this.resolving.has(token)) {
+      throw new CircularDependencyError(token);
+    }
+    let dependency = this.dependencies.get(token);
+    if (!dependency) {
+      throw new DependencyResolutionError(token);
+    }
+
+    if (dependency.lifecycle === 'singleton' && dependency.instance) {
+      return dependency.instance;
+    }
+
+    this.resolving.add(token);
+
+    try {
+      const tokens =
+        Reflect.getMetadata('design:paramtypes', dependency.target) || [];
+
+      const injections = tokens.map((t: ClassConstructor) => {
+        const token = Reflect.getMetadata('injectionToken', t);
+        return this.resolve(token);
+      });
+
+      const instance = new dependency.target(...injections);
+
+      if (dependency.lifecycle === 'singleton') {
+        dependency.instance = instance;
       }
-      this.register(target);
+
+      return instance;
+    } finally {
+      this.resolving.delete(token);
     }
-    return this.dependencies.get(name);
   }
-  registerAll(services: ClassConstructor[]): void {
-    services.forEach((service) => this.register(service));
+
+  static createToken<T>(name: string): InjectionToken<T> {
+    return new InjectionToken<T>(name);
+  }
+
+  registerToken<T>(token: InjectionToken<T>): void {
+    if (!this.dependencies.has(token)) {
+      this.dependencies.set(token, null);
+    }
   }
 }

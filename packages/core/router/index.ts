@@ -10,6 +10,7 @@ import {
   RouteMetadata,
   RoutesMetadataArray,
   RequestMethod,
+  InjectionToken,
 } from '../types';
 
 export class Router {
@@ -20,23 +21,40 @@ export class Router {
     this.container = container;
   }
 
-  getHandler(requestPath: string, method: RequestMethod): HttpRequestHandlerMethod | undefined {
+  getHandler(
+    requestPath: string,
+    method: RequestMethod
+  ): HttpRequestHandlerMethod | undefined {
     const matchingRoutes = this.routes.get(method) || [];
-    return matchingRoutes.find((route) => this.matchRoute(route.path, requestPath))?.handler;
+    return matchingRoutes.find((route) => this.matchRoute(route.path, requestPath))
+      ?.handler;
   }
 
-  registerController(ControllerClass: ClassConstructor): void {
-    const controller = this.container.resolve(ControllerClass);
-    const routeMetadata: RoutesMetadataArray = Reflect.getMetadata('routes', ControllerClass) || [];
+  registerController(
+    ControllerClass: ClassConstructor,
+    token: InjectionToken<any>
+  ): void {
+    const controller = this.container.resolve(token);
+    const routeMetadata: RoutesMetadataArray =
+      Reflect.getMetadata('routes', ControllerClass) || [];
     const requestParameterParser = new RequestParameterParser(controller);
-
-    routeMetadata.forEach((rm) => this.registerRoute(rm, controller, requestParameterParser));
+    routeMetadata.forEach((rm) =>
+      this.registerRoute(rm, controller, requestParameterParser)
+    );
   }
-
-  registerRoute(routeMetadata: RouteMetadata, controller: any, requestParameterParser: RequestParameterParser): void {
+  registerRoute(
+    routeMetadata: RouteMetadata,
+    controller: any,
+    requestParameterParser: RequestParameterParser
+  ): void {
     const { path, handlerName, method } = routeMetadata;
 
-    const handlerFunction = this.createHandlerFunction(controller, handlerName, routeMetadata, requestParameterParser);
+    const handlerFunction = this.createHandlerFunction(
+      controller,
+      handlerName,
+      routeMetadata,
+      requestParameterParser
+    );
 
     if (!this.routes.has(method)) {
       this.routes.set(method, []);
@@ -52,8 +70,14 @@ export class Router {
   ): HttpRequestHandlerMethod {
     return async (req: Request) => {
       try {
-        const methodParameters = await requestParameterParser.parseRequestParams(req, routeMetadata);
-        const result = await controller[handlerName].apply(controller, methodParameters);
+        const methodParameters = await requestParameterParser.parseRequestParams(
+          req,
+          routeMetadata
+        );
+        const result = await controller[handlerName].apply(
+          controller,
+          methodParameters
+        );
         return json(result);
       } catch (e) {
         return this.handleError(e);
@@ -78,6 +102,8 @@ export class Router {
       return false;
     }
 
-    return routeChunks.every((routeChunk, i) => routeChunk.startsWith(':') || routeChunk === urlChunks[i]);
+    return routeChunks.every(
+      (routeChunk, i) => routeChunk.startsWith(':') || routeChunk === urlChunks[i]
+    );
   }
 }
