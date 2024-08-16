@@ -1,4 +1,8 @@
-import { CoremoduleMetadataKey, ModuleMetadataKey } from '../constants';
+import {
+  CoremoduleMetadataKey,
+  INJECTION_TOKEN_MK,
+  ModuleMetadataKey,
+} from '../constants';
 import { Router } from 'router';
 import { ClassConstructor, CoreModuleMetadata, ModuleMetadata } from 'types';
 import { DependencyContainer } from './dependency-container';
@@ -21,21 +25,24 @@ export class ModuleProcessor {
       if ('provide' in provider) {
         this.container.register(provider.provide, provider.useClass);
       } else {
-        const token =
-          Reflect.getMetadata('injectionToken', provider) ||
-          DependencyContainer.createToken(provider.name);
+        const token = this.getInjectionMetadata(provider);
+        DependencyContainer.createToken(provider.name);
         this.container.register(token, provider);
       }
     });
 
     controllers.forEach((controller) => {
-      const token =
-        Reflect.getMetadata('injectionToken', controller) ||
-        DependencyContainer.createToken(controller.name);
+      const token = this.getInjectionMetadata(controller);
+      DependencyContainer.createToken(controller.name);
       this.container.register(token, controller);
       this.router.registerController(controller, token);
     });
   }
+
+  public getInjectionMetadata(classConstructor: ClassConstructor) {
+    return Reflect.getMetadata(INJECTION_TOKEN_MK, classConstructor);
+  }
+
   public processCoreModule(ModuleClass: ClassConstructor) {
     const metadata: CoreModuleMetadata =
       Reflect.getMetadata(CoremoduleMetadataKey, ModuleClass) || {};

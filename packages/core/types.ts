@@ -9,7 +9,9 @@ export type HttpRequestHandler = {
   path: string;
 };
 
-export type HttpRequestHandlerMethod = (req: Request) => Response | Promise<Response>;
+export type HttpRequestHandlerMethod = (
+  req: Request
+) => Response | Promise<Response>;
 
 export type BunnyRequestParams = {
   body: any;
@@ -42,6 +44,10 @@ export type ParamsMetadata = { index: number; name: string }[];
 //~~~~~~~~~~~~~~~OTHER~~~~~~~~~~~~~~~~//
 
 export type ClassConstructor<T = any> = new (...args: any[]) => T;
+
+/**
+ * Represents a unique identifier for a class.
+ */
 export type Token = string | symbol | InjectionToken<any>;
 export type ProviderOptions = {
   provide: Token;
@@ -52,4 +58,7 @@ export class InjectionToken<T> {
 }
 //~~~~~~~~~~~~~~~MIDDLEWARE~~~~~~~~~~~~~~~~//
 
-export type Middleware = (req: BunnyRequest, next: (req: BunnyRequest) => Promise<Response> | Response) => Response | Promise<Response>;
+export type Middleware = (
+  req: BunnyRequest,
+  next: (req: BunnyRequest) => Promise<Response> | Response
+) => Response | Promise<Response>;

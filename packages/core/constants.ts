@@ -4,7 +4,9 @@ export const QueryParamsMetadataKey = 'route:params';
 
 export const ModuleMetadataKey = 'module:metadata';
 
-export const InjectableMetadataKey = 'custom:injectable';
+export const INJECTION_TOKEN_MK = 'injection:token';
+
+export const INJECT_MK = 'inject:';
 
 export const ControllerMetadataKey = 'controller:metadata';
 

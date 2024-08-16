@@ -1,29 +1,9 @@
+import { INJECTION_TOKEN_MK, INJECT_MK } from '../constants';
+import { CircularDependencyError, DependencyResolutionError } from 'errors';
 import 'reflect-metadata';
 import { ClassConstructor, InjectionToken, Token } from 'types';
 
 type LifecycleType = 'singleton' | 'transient';
-
-class DependencyError extends Error {
-  constructor(message: string, token: Token) {
-    if (token instanceof InjectionToken) {
-      super(`${message}: ${token.name}`);
-    } else {
-      super(`${message}: ${token.toString()}`);
-    }
-  }
-}
-
-class CircularDependencyError extends DependencyError {
-  constructor(dependency: Token) {
-    super(`Circular dependency detected`, dependency);
-  }
-}
-
-class DependencyResolutionError extends DependencyError {
-  constructor(dependency: Token) {
-    super(`Failed to resolve dependency`, dependency);
-  }
-}
 
 export class DependencyContainer {
   private dependencies: Map<Token, any> = new Map();
@@ -41,7 +21,8 @@ export class DependencyContainer {
   }
 
   resolve<T>(token: Token): T {
-    if (this.resolving.has(token)) {
+    const isAlreadyResolving = this.resolving.has(token);
+    if (isAlreadyResolving) {
       throw new CircularDependencyError(token);
     }
     let dependency = this.dependencies.get(token);
@@ -58,10 +39,18 @@ export class DependencyContainer {
     try {
       const tokens =
         Reflect.getMetadata('design:paramtypes', dependency.target) || [];
-
-      const injections = tokens.map((t: ClassConstructor) => {
-        const token = Reflect.getMetadata('injectionToken', t);
-        return this.resolve(token);
+      const injections = tokens.map((t: Token, i: number) => {
+        const injectionToken = Reflect.getMetadata(
+          INJECT_MK + i,
+          dependency.target
+        );
+        if (injectionToken) {
+          return this.resolve(injectionToken);
+        }
+        const token = Reflect.getMetadata(INJECTION_TOKEN_MK, t);
+        if (token) {
+          return this.resolve(token);
+        }
       });
 
       const instance = new dependency.target(...injections);

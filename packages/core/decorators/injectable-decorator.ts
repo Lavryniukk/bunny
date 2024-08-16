@@ -1,17 +1,20 @@
 import { DependencyContainer } from 'core';
-import { InjectableMetadataKey } from '../constants';
+import { INJECT_MK, INJECTION_TOKEN_MK } from '../constants';
 import { ClassConstructor, InjectionToken } from 'types';
-
+import 'reflect-metadata';
 export function Injectable() {
   return function (target: ClassConstructor) {
-    Reflect.defineMetadata(InjectableMetadataKey, true, target);
     const token = DependencyContainer.createToken(target.name);
-    Reflect.defineMetadata('injectionToken', token, target);
+    Reflect.defineMetadata(INJECTION_TOKEN_MK, token, target);
   };
 }
 
 export function Inject(token: InjectionToken<any>) {
-  return function (target: Object, propertyKey: string | symbol, parameterIndex: number) {
-    Reflect.defineMetadata('inject:' + parameterIndex, token, target, propertyKey);
+  return function (
+    target: Object,
+    propertyKey: string | symbol,
+    parameterIndex: number
+  ) {
+    Reflect.defineMetadata(INJECT_MK + parameterIndex, token, target);
   };
 }
