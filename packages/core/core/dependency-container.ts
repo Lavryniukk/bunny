@@ -1,7 +1,7 @@
 import { INJECTION_TOKEN_MK, INJECT_MK } from '../constants';
-import { CircularDependencyError, DependencyResolutionError } from 'errors';
+import { CircularDependencyError, DependencyResolutionError } from '../errors';
 import 'reflect-metadata';
-import { ClassConstructor, InjectionToken, Token } from 'types';
+import { ClassConstructor, InjectionToken, Token } from '../types';
 
 type LifecycleType = 'singleton' | 'transient';
 
@@ -27,6 +27,8 @@ export class DependencyContainer {
     }
     let dependency = this.dependencies.get(token);
     if (!dependency) {
+      console.log('Could not find dependency for token', token);
+      console.log('Dependencies', this.dependencies);
       throw new DependencyResolutionError(token);
     }
 
@@ -40,12 +42,9 @@ export class DependencyContainer {
       const tokens =
         Reflect.getMetadata('design:paramtypes', dependency.target) || [];
       const injections = tokens.map((t: Token, i: number) => {
-        const injectionToken = Reflect.getMetadata(
-          INJECT_MK + i,
-          dependency.target
-        );
-        if (injectionToken) {
-          return this.resolve(injectionToken);
+        const injectToken = Reflect.getMetadata(INJECT_MK + i, dependency.target);
+        if (injectToken) {
+          return this.resolve(injectToken);
         }
         const token = Reflect.getMetadata(INJECTION_TOKEN_MK, t);
         if (token) {

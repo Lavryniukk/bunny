@@ -1,6 +1,6 @@
 import { DependencyContainer } from 'core';
 import { INJECT_MK, INJECTION_TOKEN_MK } from '../constants';
-import { ClassConstructor, InjectionToken } from 'types';
+import { ClassConstructor, InjectionToken, Token } from '../types';
 import 'reflect-metadata';
 export function Injectable() {
   return function (target: ClassConstructor) {
@@ -9,7 +9,7 @@ export function Injectable() {
   };
 }
 
-export function Inject(token: InjectionToken<any>) {
+export function Inject(token: Token) {
   return function (
     target: Object,
     propertyKey: string | symbol,

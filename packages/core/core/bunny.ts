@@ -1,7 +1,7 @@
 import { DependencyContainer } from '.';
 import 'reflect-metadata';
 import { MiddlewareFactory } from '../middleware';
-import { Router } from '../router';
+import { Router } from 'router';
 import { ClassConstructor, Middleware, RequestMethod } from '../types';
 import { ModuleProcessor } from './module-processor';
 
@@ -12,6 +12,7 @@ export class Bunny {
   private readonly diContainer: DependencyContainer;
   constructor(ModuleClass: ClassConstructor) {
     console.clear();
+    console.log('Server started');
     this.diContainer = new DependencyContainer();
     this.router = new Router(this.diContainer);
     this.processor = new ModuleProcessor(this.diContainer, this.router);
@@ -28,7 +29,7 @@ export class Bunny {
         if (handler) {
           return this.middlewareFactory.applyMiddleware(req, handler);
         }
-        return new Response('Page not found', { status: 404 });
+        return Response.json({ message: 'Not found' }, { status: 404 });
       },
     });
 

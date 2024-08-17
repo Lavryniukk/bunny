@@ -2,7 +2,7 @@
   "name": "@bunnyts/core",
   "description": "Blazingly fast object-oriented wrapper for Bun",
   "main": "./dist/index.js",
-  "version": "0.0.10",
+  "version": "0.0.19",
   "keywords": [
     "bun",
     "framework"
@@ -21,9 +21,10 @@
     "reflect-metadata": "^0.2.2"
   },
   "devDependencies": {
-    "@types/bun": "^1.1.6"
+    "@types/bun": "^1.1.6",
+    "tsc-alias": "^1.8.10",
+    "tsconfig-paths": "^4.2.0"
   },
   "scripts": {
-    "prepublishOnly": "rm -rf dist && bun run tsc"
-  }
-}
+  "prepublishOnly": "rm -rf dist && bun run tsc && tsc-alias"
+}}

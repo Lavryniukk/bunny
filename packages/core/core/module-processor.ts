@@ -4,7 +4,7 @@ import {
   ModuleMetadataKey,
 } from '../constants';
 import { Router } from 'router';
-import { ClassConstructor, CoreModuleMetadata, ModuleMetadata } from 'types';
+import { ClassConstructor, CoreModuleMetadata, ModuleMetadata } from '../types';
 import { DependencyContainer } from './dependency-container';
 
 export class ModuleProcessor {
@@ -26,14 +26,12 @@ export class ModuleProcessor {
         this.container.register(provider.provide, provider.useClass);
       } else {
         const token = this.getInjectionMetadata(provider);
-        DependencyContainer.createToken(provider.name);
         this.container.register(token, provider);
       }
     });
 
     controllers.forEach((controller) => {
       const token = this.getInjectionMetadata(controller);
-      DependencyContainer.createToken(controller.name);
       this.container.register(token, controller);
       this.router.registerController(controller, token);
     });
@@ -43,9 +41,9 @@ export class ModuleProcessor {
     return Reflect.getMetadata(INJECTION_TOKEN_MK, classConstructor);
   }
 
-  public processCoreModule(ModuleClass: ClassConstructor) {
+  public processCoreModule(CoremoduleClass: ClassConstructor) {
     const metadata: CoreModuleMetadata =
-      Reflect.getMetadata(CoremoduleMetadataKey, ModuleClass) || {};
+      Reflect.getMetadata(CoremoduleMetadataKey, CoremoduleClass) || {};
     const modules = metadata.modules || [];
     modules.forEach((module) => {
       this.processModule(module);

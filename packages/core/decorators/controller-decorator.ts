@@ -1,10 +1,9 @@
 import { DependencyContainer } from 'core';
-import { ControllerMetadataKey } from '../constants';
+import { ControllerMetadataKey, INJECTION_TOKEN_MK } from '../constants';
 import 'reflect-metadata';
 export const Controller = (): ClassDecorator => {
   return function (target: any) {
-    Reflect.defineMetadata(ControllerMetadataKey, true, target);
     const token = DependencyContainer.createToken(target.name);
-    Reflect.defineMetadata('injectionToken', token, target);
+    Reflect.defineMetadata(INJECTION_TOKEN_MK, token, target);
   };
 };
