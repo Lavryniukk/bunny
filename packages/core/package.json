@@ -2,7 +2,7 @@
   "name": "@bunnyts/core",
   "description": "Blazingly fast object-oriented wrapper for Bun",
   "main": "./dist/index.js",
-  "version": "0.0.19",
+  "version": "0.1.0",
   "keywords": [
     "bun",
     "framework"
