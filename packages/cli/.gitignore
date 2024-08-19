@@ -1,2 +1,19 @@
-target
+/Cargo.lock
+/target/
+# Binaries
+*.exe
+*.dll
+*.so
+*.dylib
 
+# IDE/editor files
+/.idea/
+/.vscode/
+/*.iml
+
+# Logs and temporary files
+*.log
+*.tmp
+*.bak
+*.swp
+*.swo
