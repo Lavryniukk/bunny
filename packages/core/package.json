@@ -15,7 +15,7 @@
   "repository": {
     "type": "git",
     "directory": "packages/core",
-    "url": "git+https://github.com/lavryniukk/bunny.git"
+    "url": "git+https://github.com/bunny-ts/bunny.git"
   },
   "dependencies": {
     "reflect-metadata": "^0.2.2"
