@@ -4,8 +4,8 @@
     "declaration": true,
     "skipLibCheck": true,
     "declarationDir": "./dist",
-    "rootDir": "./",
-    "baseUrl": "./",
+    "rootDir": "./src",
+    "baseUrl": "./src",
     "module": "ESNext",
     "target": "ESNext",
     "moduleResolution": "node",
@@ -17,6 +17,6 @@
       "*": ["./*"]
     }
   },
-  "include": ["./**/*"],
+  "include": ["./src/**/*"],
   "exclude": ["node_modules", "dist"]
 }

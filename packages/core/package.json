@@ -26,5 +26,6 @@
     "tsconfig-paths": "^4.2.0"
   },
   "scripts": {
-  "prepublishOnly": "rm -rf dist && bun run tsc && tsc-alias"
+  "build":"rm -rf dist && tsc-alias && bun run tsc",
+  "prepublishOnly": " "
 }}

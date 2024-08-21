@@ -1,0 +1,14 @@
+{
+  "name": "bunny",
+  "packageManager": "bun@1.1.10", 
+  "module": "index.ts",
+  "type": "module",
+  "workspaces": ["packages/*"],
+  "devDependencies": {
+    "@types/bun": "latest",
+    "turbo": "^2.0.14"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  }
+}
