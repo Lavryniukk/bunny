@@ -3,7 +3,7 @@ import { execSync } from 'child_process';
 const newVersion = process.argv[2];
 const packageName = process.argv[3]; // Added packageName argument
 const packages = ['core', 'common'];
-if (packages.includes(packageName)) {
+if (!packages.includes(packageName)) {
   console.log('Package does not exist');
   process.exit(1);
 }
