@@ -20,13 +20,17 @@ jobs:
         run: |
           TAG=${{ github.ref_name }}
           PACKAGE_NAME=$(echo $TAG | cut -d'@' -f1)
+          PACKAGE_VERSION=$(echo $TAG | cut -d'@' -f2)
+          FULL_PACKAGE_NAME="@bunny-ts/$PACKAGE_NAME"
           echo "package_name=$PACKAGE_NAME" >> $GITHUB_OUTPUT
+          echo "full_package_name=$FULL_PACKAGE_NAME" >> $GITHUB_OUTPUT
+          echo "package_version=$PACKAGE_VERSION" >> $GITHUB_OUTPUT
 
       - name: Install dependencies
         run: bun install
 
       - name: Build package
-        run: bun run build --filter=${{ steps.package_info.outputs.package_name }}
+        run: bun run build --filter=${{ steps.package_info.outputs.full_package_name }}
 
       - name: Configure npm
         run: |
