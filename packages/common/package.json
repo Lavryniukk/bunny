@@ -2,7 +2,7 @@
   "name": "@bunny-ts/common",
   "description": "Blazingly fast object-oriented wrapper for Bun",
   "main": "./dist/index.js",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "keywords": [
     "bun",
     "framework"
@@ -25,6 +25,7 @@
     "tsconfig-paths": "^4.2.0"
   },
   "scripts": {
-  "build":"rm -rf dist && tsc-alias && bun run tsc",
-  "prepublishOnly": " "
-}}
+    "build": "rm -rf dist && tsc-alias && bun run tsc",
+    "prepublishOnly": " "
+  }
+}
