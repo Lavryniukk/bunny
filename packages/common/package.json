@@ -2,7 +2,7 @@
   "name": "@bunny-ts/common",
   "description": "Blazingly fast object-oriented wrapper for Bun",
   "main": "./dist/index.js",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "keywords": [
     "bun",
     "framework"
@@ -25,7 +25,7 @@
     "tsconfig-paths": "^4.2.0",
     "@bunny-ts/core": "workspace:*"
   },
-  "peerDependencies":{
+  "peerDependencies": {
     "@bunny-ts/core": "^0.0.1"
   },
   "scripts": {
