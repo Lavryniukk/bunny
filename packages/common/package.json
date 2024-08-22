@@ -20,12 +20,13 @@
     "directory": "packages/common",
     "url": "git+https://github.com/bunny-ts/bunny.git"
   },
-  "dependencies": {
-    "@bunny-ts/core": "workspace:*"
-  },
   "devDependencies": {
     "tsc-alias": "^1.8.10",
-    "tsconfig-paths": "^4.2.0"
+    "tsconfig-paths": "^4.2.0",
+    "@bunny-ts/core": "workspace:*"
+  },
+  "peerDependencies":{
+    "@bunny-ts/core": "^0.0.1"
   },
   "scripts": {
     "build": "rm -rf dist && bun run tsc && tsc-alias "
