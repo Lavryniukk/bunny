@@ -7,6 +7,7 @@
     "bun",
     "framework"
   ],
+  "files": ["dist"],
   "author": "Lev Lavryniuk <leoyt109@gmail.com>",
   "license": "MIT",
   "publishConfig": {
@@ -25,7 +26,6 @@
     "tsconfig-paths": "^4.2.0"
   },
   "scripts": {
-    "build": "rm -rf dist && tsc-alias && bun run tsc",
-    "prepublishOnly": " "
+    "build": "rm -rf dist && bun run tsc && tsc-alias ",
   }
 }
