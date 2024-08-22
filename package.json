@@ -8,6 +8,9 @@
     "@types/bun": "latest",
     "turbo": "^2.0.14"
   },
+  "scripts": {
+    "build": "turbo run build"
+  }
   "peerDependencies": {
     "typescript": "^5.0.0"
   }
