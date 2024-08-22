@@ -1,0 +1,30 @@
+{
+  "name": "@bunny-ts/common",
+  "description": "Blazingly fast object-oriented wrapper for Bun",
+  "main": "./dist/index.js",
+  "version": "0.0.1",
+  "keywords": [
+    "bun",
+    "framework"
+  ],
+  "author": "Lev Lavryniuk <leoyt109@gmail.com>",
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "directory": "packages/common",
+    "url": "git+https://github.com/bunny-ts/bunny.git"
+  },
+  "dependencies": {
+    "@bunny-ts/core": "workspace:*"
+  },
+  "devDependencies": {
+    "tsc-alias": "^1.8.10",
+    "tsconfig-paths": "^4.2.0"
+  },
+  "scripts": {
+  "build":"rm -rf dist && tsc-alias && bun run tsc",
+  "prepublishOnly": " "
+}}

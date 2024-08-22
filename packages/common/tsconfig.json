@@ -1,0 +1,22 @@
+{
+  "compilerOptions": {
+    "outDir": "./dist",
+    "declaration": true,
+    "skipLibCheck": true,
+    "declarationDir": "./dist",
+    "rootDir": "./src",
+    "baseUrl": "./src",
+    "module": "ESNext",
+    "target": "ESNext",
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "strict": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "paths": {
+      "*": ["./*"]
+    }
+  },
+  "include": ["./src/**/*"],
+  "exclude": ["node_modules", "dist"]
+}
