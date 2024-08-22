@@ -27,7 +27,7 @@ jobs:
           echo "package_version=$PACKAGE_VERSION" >> $GITHUB_OUTPUT
 
       - name: Install dependencies
-        run: bun install
+        run: bun install --production
 
       - name: Build package
         run: bun run build --filter=${{ steps.package_info.outputs.full_package_name }}
