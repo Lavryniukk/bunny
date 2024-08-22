@@ -10,7 +10,7 @@
   },
   "scripts": {
     "build": "turbo run build"
-  }
+  },
   "peerDependencies": {
     "typescript": "^5.0.0"
   }
