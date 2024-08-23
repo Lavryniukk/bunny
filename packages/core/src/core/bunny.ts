@@ -12,7 +12,7 @@ export class Bunny {
   private readonly diContainer: DependencyContainer;
   constructor(ModuleClass: ClassConstructor) {
     console.clear();
-    console.log('Server started');
+    console.log('Starting server...');
     this.diContainer = new DependencyContainer();
     this.router = new Router(this.diContainer);
     this.processor = new ModuleProcessor(this.diContainer, this.router);

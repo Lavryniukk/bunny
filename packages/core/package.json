@@ -27,7 +27,6 @@
     "tsconfig-paths": "^4.2.0"
   },
   "scripts": {
-    "build": "rm -rf dist && tsc-alias && bun run tsc",
-    "hear": "echo Hello there"
+    "build": "rm -rf dist && bun run tsc && tsc-alias"
   }
 }

@@ -17,6 +17,7 @@ export class DependencyContainer {
     if (!token || !target) {
       throw new Error('Invalid registration: token and target must be provided');
     }
+    console.log('Registering: ', token);
     this.dependencies.set(token, { target, lifecycle, instance: null });
   }
 
@@ -31,7 +32,7 @@ export class DependencyContainer {
       console.log('Dependencies', this.dependencies);
       throw new DependencyResolutionError(token);
     }
-
+    console.log('Resolving:', token);
     if (dependency.lifecycle === 'singleton' && dependency.instance) {
       return dependency.instance;
     }

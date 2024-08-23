@@ -2,7 +2,7 @@
   "name": "@bunny-ts/common",
   "description": "Blazingly fast object-oriented wrapper for Bun",
   "main": "./dist/index.js",
-  "version": "0.0.11",
+  "version": "0.0.12",
   "keywords": [
     "bun",
     "framework"
