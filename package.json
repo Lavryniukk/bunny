@@ -10,7 +10,8 @@
   },
   "scripts": {
     "build": "turbo run build",
-    "publish": "bun run publish.ts"
+    "publish-packages": "turbo run build  && changeset version && changeset publish"
+
   },
   "peerDependencies": {
     "typescript": "^5.0.0"

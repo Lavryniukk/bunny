@@ -1,4 +1,5 @@
 import 'reflect-metadata';
+import { Logger } from '@bunny-ts/common';
 import { DependencyContainer } from '../core';
 import { Exception, InternalServerErrorException } from '../exceptions';
 import { RequestParameterParser } from '../request';
@@ -60,6 +61,8 @@ export class Router {
       this.routes.set(method, []);
     }
     this.routes.get(method)!.push({ method, handler: handlerFunction, path });
+
+    Logger.success(`[${method.toUpperCase()}] ~ ${path}`);
   }
 
   createHandlerFunction(
