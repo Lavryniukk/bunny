@@ -6,7 +6,10 @@ import { ClassConstructor, InjectionToken, Token } from '../types';
 type LifecycleType = 'singleton' | 'transient';
 
 export class DependencyContainer {
-  private dependencies: Map<Token, any> = new Map();
+  private dependencies: Map<
+    Token,
+    { target: ClassConstructor; lifecycle: LifecycleType; instance: any | null }
+  > = new Map();
   private resolving: Set<Token> = new Set();
 
   register<T>(
@@ -17,7 +20,6 @@ export class DependencyContainer {
     if (!token || !target) {
       throw new Error('Invalid registration: token and target must be provided');
     }
-    console.log('Registering: ', token);
     this.dependencies.set(token, { target, lifecycle, instance: null });
   }
 
@@ -32,7 +34,6 @@ export class DependencyContainer {
       console.log('Dependencies', this.dependencies);
       throw new DependencyResolutionError(token);
     }
-    console.log('Resolving:', token);
     if (dependency.lifecycle === 'singleton' && dependency.instance) {
       return dependency.instance;
     }
@@ -67,11 +68,5 @@ export class DependencyContainer {
 
   static createToken<T>(name: string): InjectionToken<T> {
     return new InjectionToken<T>(name);
-  }
-
-  registerToken<T>(token: InjectionToken<T>): void {
-    if (!this.dependencies.has(token)) {
-      this.dependencies.set(token, null);
-    }
   }
 }

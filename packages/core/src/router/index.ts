@@ -1,5 +1,4 @@
 import 'reflect-metadata';
-import { DependencyContainer } from '../core';
 import { Exception, InternalServerErrorException } from '../exceptions';
 import { RequestParameterParser } from '../request';
 import { error, json } from '../response';
@@ -10,16 +9,10 @@ import {
   RouteMetadata,
   RoutesMetadataArray,
   RequestMethod,
-  InjectionToken,
 } from '../types';
 
 export class Router {
   routes: Map<RequestMethod, HttpRequestHandler[]> = new Map();
-  private readonly container: DependencyContainer;
-
-  constructor(container: DependencyContainer) {
-    this.container = container;
-  }
 
   getHandler(
     requestPath: string,
@@ -31,26 +24,25 @@ export class Router {
   }
 
   registerController(
-    ControllerClass: ClassConstructor,
-    token: InjectionToken<any>
+    controllerInstance: any,
+    ControllerClass: ClassConstructor
   ): void {
-    const controller = this.container.resolve(token);
     const routeMetadata: RoutesMetadataArray =
       Reflect.getMetadata('routes', ControllerClass) || [];
-    const requestParameterParser = new RequestParameterParser(controller);
+    const requestParameterParser = new RequestParameterParser(controllerInstance);
     routeMetadata.forEach((rm) =>
-      this.registerRoute(rm, controller, requestParameterParser)
+      this.registerRoute(rm, controllerInstance, requestParameterParser)
     );
   }
   registerRoute(
     routeMetadata: RouteMetadata,
-    controller: any,
+    controllerInstance: any,
     requestParameterParser: RequestParameterParser
   ): void {
     const { path, handlerName, method } = routeMetadata;
 
     const handlerFunction = this.createHandlerFunction(
-      controller,
+      controllerInstance,
       handlerName,
       routeMetadata,
       requestParameterParser

@@ -2,4 +2,4 @@
 '@bunny-ts/core': patch
 ---
 
-Bug fix
+Fixed a bug

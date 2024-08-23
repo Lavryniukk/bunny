@@ -33,7 +33,8 @@ export class ModuleProcessor {
     controllers.forEach((controller) => {
       const token = this.getInjectionMetadata(controller);
       this.container.register(token, controller);
-      this.router.registerController(controller, token);
+      const controllerInstance = this.container.resolve(token);
+      this.router.registerController(controllerInstance, controller);
     });
   }
 
