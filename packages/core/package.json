@@ -2,12 +2,14 @@
   "name": "@bunny-ts/core",
   "description": "Blazingly fast object-oriented wrapper for Bun",
   "main": "./dist/index.js",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "keywords": [
     "bun",
     "framework"
   ],
-  "files": ["dist, tsconfig.json"],
+  "files": [
+    "dist"," tsconfig.json"
+  ],
   "author": "Lev Lavryniuk <leoyt109@gmail.com>",
   "license": "MIT",
   "publishConfig": {

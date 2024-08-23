@@ -2,7 +2,7 @@
   "name": "@bunny-ts/common",
   "description": "Blazingly fast object-oriented wrapper for Bun",
   "main": "./dist/index.js",
-  "version": "0.0.12",
+  "version": "0.0.13",
   "keywords": [
     "bun",
     "framework"
@@ -21,11 +21,11 @@
     "url": "git+https://github.com/bunny-ts/bunny.git"
   },
   "peerDependencies": {
-    "@bunny-ts/core": "^0.1.1"
+    "@bunny-ts/core": "^0.1.2"
   },
   "devDependencies": {
     "tsc-alias": "^1.8.10",
-    "@bunny-ts/core": "^0.1.1",
+    "@bunny-ts/core": "^0.1.2",
     "tsconfig-paths": "^4.2.0"
   },
   "scripts": {
