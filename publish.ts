@@ -1,14 +1,11 @@
 import { execSync } from 'child_process';
+import * as fs from 'fs';
+import * as path from 'path';
 
-const newVersion = process.argv[2];
-const packageName = process.argv[3]; // Added packageName argument
-const packages = ['core', 'common'];
-if (!packages.includes(packageName)) {
-  console.log('Package does not exist');
-  process.exit(1);
-}
-if (!newVersion || !packageName) {
-  console.error('Please provide a version number and a package name.');
+let newVersion = process.argv[2];
+
+if (!newVersion) {
+  console.error('Please provide a new version number as an argument.');
   process.exit(1);
 }
 
@@ -26,6 +23,12 @@ function log(message: string) {
   console.log(`\x1b[32m✔️ ${message}\x1b[0m`);
 }
 
+function updatePackageVersion(packagePath: string, version: string) {
+  const packageJson = JSON.parse(fs.readFileSync(packagePath, 'utf8'));
+  packageJson.version = version;
+  fs.writeFileSync(packagePath, JSON.stringify(packageJson, null, 2));
+}
+
 try {
   // Check if inside a Git repository
   runCommand('git rev-parse --is-inside-work-tree');
@@ -37,25 +40,41 @@ try {
     process.exit(1);
   }
 
-  const packagePath = `packages/${packageName}`;
+  // 1. Update version in the main package.json
+  log(`Updating main package.json version to ${newVersion}`);
+  updatePackageVersion('package.json', newVersion);
 
-  log(`Updating version to ${newVersion} for package ${packageName}`);
-  runCommand(`npm version ${newVersion} --no-git-tag-version --prefix ${packagePath}`);
+  // 2. Update version in all packages
+  log('Updating version in all packages');
+  const packagesDir = path.join(__dirname, 'packages');
+  const packages = fs.readdirSync(packagesDir);
 
-  log('Staging changes');
-  runCommand(`git add ${packagePath}/package.json`);
+  for (const pkg of packages) {
+    const packageJsonPath = path.join(packagesDir, pkg, 'package.json');
+    if (fs.existsSync(packageJsonPath)) {
+      updatePackageVersion(packageJsonPath, newVersion);
+    }
+  }
 
+  // 3. Stage all changes
+  log('Staging all changes');
+  runCommand('git add .');
+
+  // 4. Commit changes
   log('Committing changes');
-  runCommand(`git commit -m "Bump version to ${newVersion} in @${packageName}"`);
+  runCommand(`git commit -m "@bunny-ts Bump version to ${newVersion}"`);
 
+  // Create git tag
   log('Creating git tag');
-  runCommand(`git tag ${packageName}@v${newVersion}`);
+  runCommand(`git tag ${newVersion}`);
 
+  // Push changes and tags
   log('Pushing to remote');
   runCommand('git push');
   runCommand('git push --tags');
 
-  log(`Version ${newVersion} of ${packageName} has been published successfully.`);
+  log(`Version ${newVersion} of Bunny-ts has been published successfully.`);
+  log('GitHub Action will now build and publish packages to npm.');
 } catch (error) {
   console.error('An error occurred during publishing:', error);
   process.exit(1);

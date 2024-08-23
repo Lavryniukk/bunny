@@ -27,5 +27,5 @@
   },
   "scripts": {
   "build":"rm -rf dist && tsc-alias && bun run tsc",
-  "prepublishOnly": " "
+  "hear": "echo Hello there"
 }}

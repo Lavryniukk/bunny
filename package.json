@@ -1,6 +1,6 @@
 {
   "name": "bunny",
-  "packageManager": "bun@1.1.10", 
+  "packageManager": "bun@1.1.10",
   "module": "index.ts",
   "type": "module",
   "workspaces": ["packages/*"],
@@ -9,9 +9,14 @@
     "turbo": "^2.0.14"
   },
   "scripts": {
-    "build": "turbo run build"
+    "build": "turbo run build",
+    "publish": "bun run publish.ts"
   },
   "peerDependencies": {
     "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "@changesets/cli": "^2.27.7",
+    "changesets": "^1.0.2"
   }
 }
