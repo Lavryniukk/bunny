@@ -62,7 +62,7 @@ export class Router {
     }
     this.routes.get(method)!.push({ method, handler: handlerFunction, path });
 
-    Logger.success(`[${method.toUpperCase()}] ~ ${path}`);
+    //Logger.success(`[${method.toUpperCase()}] ~ ${path}`);
   }
 
   createHandlerFunction(

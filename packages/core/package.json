@@ -7,6 +7,7 @@
     "bun",
     "framework"
   ],
+  "files": ["dist, tsconfig.json"],
   "author": "Lev Lavryniuk <leoyt109@gmail.com>",
   "license": "MIT",
   "publishConfig": {
@@ -21,7 +22,6 @@
     "reflect-metadata": "^0.2.2"
   },
   "devDependencies": {
-    "@bunny-ts/common": "^0.0.10",
     "@types/bun": "^1.1.6",
     "tsc-alias": "^1.8.10",
     "tsconfig-paths": "^4.2.0"

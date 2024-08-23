@@ -8,10 +8,7 @@
     "test": {
       "dependsOn": ["build"],
       "outputs": []
-    },
-    "lint": {
-      "outputs": []
     }
+ 
   }
 }
-
