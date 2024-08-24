@@ -1,5 +1,11 @@
 # @bunny-ts/common
 
+## 0.0.15
+
+### Patch Changes
+
+- 53dcdf2: Moved exceptions, types, decorators and constants from @core to @common
+
 ## 0.0.14
 
 ### Patch Changes
