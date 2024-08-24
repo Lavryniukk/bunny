@@ -1,4 +1,3 @@
-import { Injectable } from '@bunny-ts/core';
 @Injectable()
 export class Logger {
   public static success(message: string): void {

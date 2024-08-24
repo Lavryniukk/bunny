@@ -20,12 +20,8 @@
     "directory": "packages/common",
     "url": "git+https://github.com/bunny-ts/bunny.git"
   },
-  "peerDependencies": {
-    "@bunny-ts/core": "^0.1.2"
-  },
   "devDependencies": {
     "tsc-alias": "^1.8.10",
-    "@bunny-ts/core": "^0.1.2",
     "tsconfig-paths": "^4.2.0"
   },
   "scripts": {

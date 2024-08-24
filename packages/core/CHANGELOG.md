@@ -1,5 +1,11 @@
 # @bunny-ts/core
 
+## 0.1.4
+
+### Patch Changes
+
+- 656731e: Fixed a bug
+
 ## 0.1.3
 
 ### Patch Changes
