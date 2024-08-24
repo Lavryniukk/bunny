@@ -1,11 +1,6 @@
-import {
-  CoremoduleMetadataKey,
-  INJECTION_TOKEN_MK,
-  ModuleMetadataKey,
-} from '../constants';
 import { Router } from 'router';
-import { ClassConstructor, CoreModuleMetadata, ModuleMetadata } from '../types';
 import { DependencyContainer } from './dependency-container';
+import { ClassConstructor, ModuleMetadata, ModuleMetadataKey, INJECTION_TOKEN_MK, CoreModuleMetadata, CoremoduleMetadataKey } from '@bunny-ts/common';
 
 export class ModuleProcessor {
   private container: DependencyContainer;

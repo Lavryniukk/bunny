@@ -1,5 +1,28 @@
 # @bunny-ts/core
 
+## 0.1.8
+
+### Patch Changes
+
+- Moved [decorators, exceptions, constants, types] from @core to @common package. Mostly internal changes
+- Updated dependencies
+  - @bunny-ts/common@0.1.0
+
+## 0.1.7
+
+### Patch Changes
+
+- Updated dependencies
+- Updated dependencies
+  - @bunny-ts/common@0.0.17
+
+## 0.1.6
+
+### Patch Changes
+
+- Updated dependencies
+  - @bunny-ts/common@0.0.16
+
 ## 0.1.5
 
 ### Patch Changes

@@ -1,5 +1,4 @@
-import { Exception } from '../exceptions';
-
+import { Exception } from '@bunny-ts/common';
 const HEADERS = {
   'Content-Type': 'application/json',
   'Access-Control-Allow-Origin': '*',

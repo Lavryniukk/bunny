@@ -1,8 +1,8 @@
 import { DependencyContainer } from '.';
 import 'reflect-metadata';
-import { MiddlewareFactory } from '../middleware';
+import { MiddlewareFactory, Middleware } from '../middleware';
 import { Router } from 'router';
-import { ClassConstructor, Middleware, RequestMethod } from '../types';
+import { ClassConstructor, RequestMethod } from '@bunny-ts/common';
 import { ModuleProcessor } from './module-processor';
 
 export class Bunny {

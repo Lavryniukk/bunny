@@ -9,9 +9,7 @@ export type HttpRequestHandler = {
   path: string;
 };
 
-export type HttpRequestHandlerMethod = (
-  req: Request
-) => Response | Promise<Response>;
+export type HttpRequestHandlerMethod = (req: Request) => Response | Promise<Response>;
 
 export type BunnyRequestParams = {
   body: any;
@@ -57,8 +55,3 @@ export class InjectionToken<T> {
   constructor(public name: string) {}
 }
 //~~~~~~~~~~~~~~~MIDDLEWARE~~~~~~~~~~~~~~~~//
-
-export type Middleware = (
-  req: BunnyRequest,
-  next: (req: BunnyRequest) => Promise<Response> | Response
-) => Response | Promise<Response>;

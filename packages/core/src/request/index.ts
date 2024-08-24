@@ -1,3 +1,11 @@
+import {
+  RouteMetadata,
+  BodyParamsMetadata,
+  BodyParamsMetadataKey,
+  ParamsMetadata,
+  QueryParamsMetadataKey,
+} from '@bunny-ts/common';
+
 export class RequestParameterParser {
   constructor(private readonly controller: any) {}
 

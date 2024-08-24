@@ -2,7 +2,7 @@
   "name": "@bunny-ts/common",
   "description": "Blazingly fast object-oriented wrapper for Bun",
   "main": "./dist/index.js",
-  "version": "0.0.15",
+  "version": "0.1.0",
   "keywords": [
     "bun",
     "framework"
@@ -26,8 +26,5 @@
   },
   "scripts": {
     "build": "rm -rf dist && bun run tsc && tsc-alias "
-  },
-  "dependencies": {
-    "@bunny-ts/core": "^0.1.5"
   }
 }

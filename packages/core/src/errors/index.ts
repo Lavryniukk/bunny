@@ -1,4 +1,4 @@
-import { Token, InjectionToken } from '../types';
+import { Token, InjectionToken } from '@bunny-ts/common';
 
 class DependencyError extends Error {
   constructor(message: string, token: Token) {

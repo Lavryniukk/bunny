@@ -1,7 +1,12 @@
-import { INJECTION_TOKEN_MK, INJECT_MK } from '../constants';
-import { CircularDependencyError, DependencyResolutionError } from '../errors';
+import {
+  Token,
+  ClassConstructor,
+  INJECT_MK,
+  INJECTION_TOKEN_MK,
+  InjectionToken,
+} from '@bunny-ts/common';
+import { CircularDependencyError, DependencyResolutionError } from 'errors';
 import 'reflect-metadata';
-import { ClassConstructor, InjectionToken, Token } from '../types';
 
 type LifecycleType = 'singleton' | 'transient';
 

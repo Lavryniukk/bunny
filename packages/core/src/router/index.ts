@@ -1,5 +1,4 @@
 import 'reflect-metadata';
-import { Exception, InternalServerErrorException } from '../exceptions';
 import { RequestParameterParser } from '../request';
 import { error, json } from '../response';
 import {
@@ -9,7 +8,10 @@ import {
   RouteMetadata,
   RoutesMetadataArray,
   RequestMethod,
-} from '../types';
+  Exception,
+  InternalServerErrorException,
+  Logger,
+} from '@bunny-ts/common';
 
 export class Router {
   routes: Map<RequestMethod, HttpRequestHandler[]> = new Map();
@@ -52,6 +54,7 @@ export class Router {
       this.routes.set(method, []);
     }
     this.routes.get(method)!.push({ method, handler: handlerFunction, path });
+    Logger.success(`Registered [${method}] ~ ${path}`);
   }
 
   createHandlerFunction(
