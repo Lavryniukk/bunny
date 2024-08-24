@@ -1,5 +1,13 @@
 # @bunny-ts/core
 
+## 0.1.5
+
+### Patch Changes
+
+- c25eddc: Added logging of registered routes
+- Updated dependencies [c25eddc]
+  - @bunny-ts/common@0.0.14
+
 ## 0.1.4
 
 ### Patch Changes

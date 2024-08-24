@@ -1,5 +1,11 @@
 # @bunny-ts/common
 
+## 0.0.14
+
+### Patch Changes
+
+- c25eddc: Fixed circular deps mistake
+
 ## 0.0.13
 
 ### Patch Changes
