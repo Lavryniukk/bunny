@@ -26,5 +26,8 @@
   },
   "scripts": {
     "build": "rm -rf dist && bun run tsc && tsc-alias "
+  },
+  "dependencies": {
+    "@bunny-ts/core": "^0.1.5"
   }
 }

@@ -1,10 +1,10 @@
-import { BodyParamsMetadataKey, QueryParamsMetadataKey } from '../constants';
-import { BodyParamsMetadata, ParamsMetadata, RouteMetadata } from '../types';
-
 export class RequestParameterParser {
   constructor(private readonly controller: any) {}
 
-  public async parseRequestParams(req: Request, routeMetadata: RouteMetadata): Promise<any[]> {
+  public async parseRequestParams(
+    req: Request,
+    routeMetadata: RouteMetadata
+  ): Promise<any[]> {
     const { handlerName, method } = routeMetadata;
     const methodParameters: any[] = [];
 
@@ -17,7 +17,11 @@ export class RequestParameterParser {
     return methodParameters;
   }
 
-  async parseBodyParameters(req: Request, handlerName: string, methodParameters: any[]): Promise<void> {
+  async parseBodyParameters(
+    req: Request,
+    handlerName: string,
+    methodParameters: any[]
+  ): Promise<void> {
     const body = await req.json();
     const bodyParametersMetadata = this.getBodyParamsMetadata(handlerName);
 
@@ -26,8 +30,14 @@ export class RequestParameterParser {
     });
   }
 
-  async parseQueryParameters(req: Request, routeMetadata: RouteMetadata, methodParameters: any[]): Promise<void> {
-    const parametersMetadata = this.getQueryParamsMetadata(routeMetadata.handlerName);
+  async parseQueryParameters(
+    req: Request,
+    routeMetadata: RouteMetadata,
+    methodParameters: any[]
+  ): Promise<void> {
+    const parametersMetadata = this.getQueryParamsMetadata(
+      routeMetadata.handlerName
+    );
 
     if (parametersMetadata.length > 0) {
       const foundParams = this.parseParams(req, routeMetadata);
@@ -38,11 +48,23 @@ export class RequestParameterParser {
   }
 
   getBodyParamsMetadata(handlerName: string): BodyParamsMetadata {
-    return Reflect.getOwnMetadata(BodyParamsMetadataKey, this.controller.constructor.prototype, handlerName) || [];
+    return (
+      Reflect.getOwnMetadata(
+        BodyParamsMetadataKey,
+        this.controller.constructor.prototype,
+        handlerName
+      ) || []
+    );
   }
 
   getQueryParamsMetadata(handlerName: string): ParamsMetadata {
-    return Reflect.getOwnMetadata(QueryParamsMetadataKey, this.controller.constructor.prototype, handlerName) || [];
+    return (
+      Reflect.getOwnMetadata(
+        QueryParamsMetadataKey,
+        this.controller.constructor.prototype,
+        handlerName
+      ) || []
+    );
   }
 
   parseParams(req: Request, routeMetadata: RouteMetadata): Record<string, string> {
