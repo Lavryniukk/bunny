@@ -11,3 +11,5 @@ export const INJECT_MK = 'inject:';
 export const ControllerMetadataKey = 'controller:metadata';
 
 export const CoremoduleMetadataKey = 'coremodule:metadata';
+
+export const GuardsMetadataKey = 'guards';
