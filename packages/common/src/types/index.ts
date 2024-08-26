@@ -5,8 +5,10 @@ export type RequestMethod = 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
 
 export type HttpRequestHandler = {
   method: RequestMethod;
+  handlerName: string;
   handler: HttpRequestHandlerMethod;
   path: string;
+  controllerToken: InjectionToken<any>;
 };
 
 export type HttpRequestHandlerMethod = (req: Request) => Response | Promise<Response>;
@@ -24,6 +26,15 @@ export type ModuleMetadata = {
 };
 export type CoreModuleMetadata = {
   modules: ClassConstructor[];
+};
+//~~~~~~~~~~~~~~~METHOD METADATA TYPES~~~~~~~~~~~~~~~~//
+
+export interface Guard {
+  canActivate: (req: Request) => boolean;
+}
+export type GuardsMetadata = {
+  guards: Guard[];
+  handlerName: string;
 };
 //~~~~~~~~~~~~~~~ROUTER METADATA TYPES~~~~~~~~~~~~~~~~//
 
