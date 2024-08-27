@@ -4,6 +4,7 @@ import { MiddlewareFactory, Middleware } from '../middleware';
 import { Router } from 'router';
 import { ClassConstructor, RequestMethod } from '@bunny-ts/common';
 import { ModuleProcessor } from './module-processor';
+import { json } from '../response';
 
 export class Bunny {
   private readonly router: Router;
@@ -16,7 +17,7 @@ export class Bunny {
     this.diContainer = new DependencyContainer();
     this.router = new Router();
     this.processor = new ModuleProcessor(this.diContainer, this.router);
-    this.middlewareFactory = new MiddlewareFactory();
+    this.middlewareFactory = new MiddlewareFactory(this.diContainer);
     this.processor.processCoreModule(ModuleClass);
   }
 
@@ -27,9 +28,9 @@ export class Bunny {
         const path = new URL(req.url).pathname;
         const handler = this.router.getHandler(path, req.method as RequestMethod);
         if (handler) {
-          return this.middlewareFactory.applyMiddleware(req, handler);
+          return await this.middlewareFactory.applyMiddleware(req, handler);
         }
-        return Response.json({ message: 'Not found' }, { status: 404 });
+        return json({ message: 'Not found', status: 404 }, { status: 404 });
       },
     });
 

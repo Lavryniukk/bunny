@@ -1,5 +1,5 @@
-import { GuardsMetadata, Guard } from 'types';
-export function Guards(guards: Guard[]): MethodDecorator {
+import { GuardsMetadata, ClassConstructor } from 'types';
+export function Guards(guards: ClassConstructor[]): MethodDecorator {
   return (target, propertyKey, _) => {
     const payload: GuardsMetadata = {
       guards,

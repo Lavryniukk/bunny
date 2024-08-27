@@ -33,7 +33,7 @@ export interface Guard {
   canActivate: (req: Request) => boolean;
 }
 export type GuardsMetadata = {
-  guards: Guard[];
+  guards: ClassConstructor[];
   handlerName: string;
 };
 //~~~~~~~~~~~~~~~ROUTER METADATA TYPES~~~~~~~~~~~~~~~~//

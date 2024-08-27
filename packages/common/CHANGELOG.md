@@ -1,5 +1,17 @@
 # @bunny-ts/common
 
+## 0.1.4
+
+### Patch Changes
+
+- Guards now accepts ClassConstructors
+
+## 0.1.3
+
+### Patch Changes
+
+- Minor bug fix
+
 ## 0.1.2
 
 ### Patch Changes

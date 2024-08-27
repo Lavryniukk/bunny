@@ -1,5 +1,13 @@
 # @bunny-ts/core
 
+## 0.1.9
+
+### Patch Changes
+
+- Added route logging
+- Updated dependencies
+  - @bunny-ts/common@0.1.1
+
 ## 0.1.8
 
 ### Patch Changes

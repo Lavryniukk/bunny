@@ -11,6 +11,7 @@ import {
   Exception,
   InternalServerErrorException,
   Logger,
+  InjectionToken,
 } from '@bunny-ts/common';
 
 export class Router {
@@ -53,7 +54,13 @@ export class Router {
     if (!this.routes.has(method)) {
       this.routes.set(method, []);
     }
-    this.routes.get(method)!.push({ method, handler: handlerFunction, path });
+    this.routes.get(method)!.push({
+      method,
+      handler: handlerFunction,
+      path,
+      handlerName,
+      controllerToken: new InjectionToken(controllerInstance.name),
+    });
     Logger.success(`Registered [${method}] ~ ${path}`);
   }
 
