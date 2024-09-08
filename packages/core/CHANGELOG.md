@@ -1,5 +1,16 @@
 # @bunny-ts/core
 
+## 0.2.0
+
+### Minor Changes
+
+- 8185154: Added Guards support
+
+### Patch Changes
+
+- Updated dependencies [8185154]
+  - @bunny-ts/common@0.2.0
+
 ## 0.1.9
 
 ### Patch Changes
