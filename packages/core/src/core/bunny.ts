@@ -1,11 +1,10 @@
-import { DependencyContainer } from '.';
 import 'reflect-metadata';
+import { DependencyContainer } from '.';
 import { MiddlewareFactory, Middleware } from '../middleware';
-import { Router } from 'router';
 import { ClassConstructor, RequestMethod } from '@bunny-ts/common';
 import { ModuleProcessor } from './module-processor';
 import { json } from '../response';
-
+import { Router } from '../router';
 export class Bunny {
   private readonly router: Router;
   private readonly middlewareFactory: MiddlewareFactory;
@@ -13,7 +12,7 @@ export class Bunny {
   private readonly diContainer: DependencyContainer;
   constructor(ModuleClass: ClassConstructor) {
     console.clear();
-    console.log('Starting server, wait please...');
+    console.log('Starting server');
     this.diContainer = new DependencyContainer();
     this.router = new Router();
     this.processor = new ModuleProcessor(this.diContainer, this.router);

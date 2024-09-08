@@ -6,15 +6,16 @@ import {
   InjectionToken,
 } from '@bunny-ts/common';
 import { CircularDependencyError, DependencyResolutionError } from 'errors';
-import 'reflect-metadata';
 
 type LifecycleType = 'singleton' | 'transient';
+export type Dependency = {
+  target: ClassConstructor;
+  lifecycle: LifecycleType;
+  instance: any | null;
+};
 
 export class DependencyContainer {
-  private dependencies: Map<
-    Token,
-    { target: ClassConstructor; lifecycle: LifecycleType; instance: any | null }
-  > = new Map();
+  private dependencies: Map<Token, Dependency> = new Map();
   private resolving: Set<Token> = new Set();
 
   register<T>(
@@ -25,7 +26,8 @@ export class DependencyContainer {
     if (!token || !target) {
       throw new Error('Invalid registration: token and target must be provided');
     }
-    this.dependencies.set(token, { target, lifecycle, instance: null });
+    const dep = { target, lifecycle, instance: null };
+    this.dependencies.set(token, dep);
   }
 
   resolve<T>(token: Token): T {
@@ -35,8 +37,6 @@ export class DependencyContainer {
     }
     let dependency = this.dependencies.get(token);
     if (!dependency) {
-      console.log('Could not find dependency for token', token);
-      console.log('Dependencies', this.dependencies);
       throw new DependencyResolutionError(token);
     }
     if (dependency.lifecycle === 'singleton' && dependency.instance) {
@@ -60,11 +60,9 @@ export class DependencyContainer {
       });
 
       const instance = new dependency.target(...injections);
-
       if (dependency.lifecycle === 'singleton') {
         dependency.instance = instance;
       }
-
       return instance;
     } finally {
       this.resolving.delete(token);

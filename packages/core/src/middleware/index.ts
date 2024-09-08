@@ -1,10 +1,13 @@
 import {
   BunnyRequest,
+  ForbiddenException,
   GuardsMetadata,
   HttpRequestHandler,
-  HttpRequestHandlerMethod,
+  Logger,
 } from '@bunny-ts/common';
 import { DependencyContainer } from 'core';
+import { Dependency } from 'core/dependency-container';
+import { error } from 'response';
 export type Middleware = (
   req: BunnyRequest,
   next: (req: BunnyRequest) => Promise<Response> | Response
@@ -13,7 +16,7 @@ export type Middleware = (
 export class MiddlewareFactory {
   dc: DependencyContainer;
   middlewares: Middleware[] = [];
-  constructor(readonly depContainer: DependencyContainer) {
+  constructor(depContainer: DependencyContainer) {
     this.dc = depContainer;
   }
   addMiddleware(middleware: Middleware) {
@@ -25,7 +28,7 @@ export class MiddlewareFactory {
     handlerData: HttpRequestHandler
   ): Promise<Response> {
     const { handler, controllerToken, handlerName } = handlerData;
-    const controllerInstance = this.dc.resolve(controllerToken);
+    const controller = this.dc.resolve<any>(controllerToken);
     let i = 0;
     const next = (request: BunnyRequest): Response | Promise<Response> => {
       if (i === this.middlewares.length) {
@@ -37,10 +40,16 @@ export class MiddlewareFactory {
     };
     const guardsMetadata: GuardsMetadata = Reflect.getMetadata(
       'guards',
-      controllerInstance as Object,
+      controller.constructor,
       handlerName
     );
-    console.log(guardsMetadata);
+    const isAllowed = guardsMetadata.guards.every((GuardConstructor) => {
+      const guard = new GuardConstructor();
+      return guard.canActivate(req);
+    });
+    if (!isAllowed) {
+      return error(new ForbiddenException());
+    }
 
     const response: Response = await next(req as BunnyRequest);
     return response;

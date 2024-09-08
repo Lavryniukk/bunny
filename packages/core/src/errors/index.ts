@@ -5,7 +5,11 @@ class DependencyError extends Error {
     if (token instanceof InjectionToken) {
       super(`${message}: ${token.name}`);
     } else {
-      super(`${message}: ${token.toString()}`);
+      if (!token) {
+        super(`Token not found : ${message}`);
+      } else {
+        super(`${message}: ${token.toString()}`);
+      }
     }
   }
 }

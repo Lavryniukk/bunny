@@ -9,7 +9,7 @@
   },
   "main": "./dist/index.js",
   "dependencies": {
-    "@bunny-ts/common": "^0.1.3",
+    "@bunny-ts/common": "^0.1.4",
     "reflect-metadata": "^0.2.2"
   },
   "devDependencies": {

@@ -1,5 +1,4 @@
 import { INJECTION_TOKEN_MK } from '../constants';
-import 'reflect-metadata';
 import { InjectionToken } from '../types';
 export const Controller = (): ClassDecorator => {
   return function (target: any) {

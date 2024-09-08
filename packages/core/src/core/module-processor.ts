@@ -1,6 +1,13 @@
 import { Router } from 'router';
 import { DependencyContainer } from './dependency-container';
-import { ClassConstructor, ModuleMetadata, ModuleMetadataKey, INJECTION_TOKEN_MK, CoreModuleMetadata, CoremoduleMetadataKey } from '@bunny-ts/common';
+import {
+  ClassConstructor,
+  ModuleMetadata,
+  ModuleMetadataKey,
+  INJECTION_TOKEN_MK,
+  CoreModuleMetadata,
+  CoremoduleMetadataKey,
+} from '@bunny-ts/common';
 
 export class ModuleProcessor {
   private container: DependencyContainer;
@@ -28,8 +35,9 @@ export class ModuleProcessor {
     controllers.forEach((controller) => {
       const token = this.getInjectionMetadata(controller);
       this.container.register(token, controller);
+
       const controllerInstance = this.container.resolve(token);
-      this.router.registerController(controllerInstance, controller);
+      this.router.registerController(controllerInstance, token);
     });
   }
 

@@ -1,6 +1,5 @@
 import { INJECT_MK, INJECTION_TOKEN_MK } from '../constants';
 import { ClassConstructor, InjectionToken, Token } from '../types';
-import 'reflect-metadata';
 export function Injectable() {
   return function (target: ClassConstructor) {
     const token = new InjectionToken<any>(target.name);

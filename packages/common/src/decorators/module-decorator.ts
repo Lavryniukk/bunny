@@ -1,5 +1,4 @@
 import { ModuleMetadata, ClassConstructor, InjectionToken } from '../types';
-import 'reflect-metadata';
 import { INJECTION_TOKEN_MK, ModuleMetadataKey } from '../constants';
 
 export function Module(metadata: ModuleMetadata) {

@@ -1,4 +1,3 @@
-import 'reflect-metadata';
 import { RequestParameterParser } from '../request';
 import { error, json } from '../response';
 import {
@@ -20,27 +19,33 @@ export class Router {
   getHandler(
     requestPath: string,
     method: RequestMethod
-  ): HttpRequestHandlerMethod | undefined {
+  ): HttpRequestHandler | undefined {
     const matchingRoutes = this.routes.get(method) || [];
-    return matchingRoutes.find((route) => this.matchRoute(route.path, requestPath))
-      ?.handler;
+    return matchingRoutes.find((route) => this.matchRoute(route.path, requestPath));
   }
 
   registerController(
     controllerInstance: any,
-    ControllerClass: ClassConstructor
+    controllerToken: InjectionToken<any>
   ): void {
+    Logger.success(`Registering controller ~ ${controllerToken.name}`);
     const routeMetadata: RoutesMetadataArray =
-      Reflect.getMetadata('routes', ControllerClass) || [];
+      Reflect.getMetadata('routes', controllerInstance.constructor) || [];
     const requestParameterParser = new RequestParameterParser(controllerInstance);
     routeMetadata.forEach((rm) =>
-      this.registerRoute(rm, controllerInstance, requestParameterParser)
+      this.registerRoute(
+        rm,
+        controllerInstance,
+        requestParameterParser,
+        controllerToken
+      )
     );
   }
   registerRoute(
     routeMetadata: RouteMetadata,
     controllerInstance: any,
-    requestParameterParser: RequestParameterParser
+    requestParameterParser: RequestParameterParser,
+    controllerToken: InjectionToken<any>
   ): void {
     const { path, handlerName, method } = routeMetadata;
 
@@ -54,13 +59,15 @@ export class Router {
     if (!this.routes.has(method)) {
       this.routes.set(method, []);
     }
-    this.routes.get(method)!.push({
+
+    const newRoute = {
       method,
       handler: handlerFunction,
       path,
       handlerName,
-      controllerToken: new InjectionToken(controllerInstance.name),
-    });
+      controllerToken,
+    };
+    this.routes.get(method)!.push(newRoute);
     Logger.success(`Registered [${method}] ~ ${path}`);
   }
 

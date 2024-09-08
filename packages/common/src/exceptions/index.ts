@@ -63,7 +63,6 @@ export class InternalServerErrorException extends Exception {
 export class NotImplementedException extends Exception {
   constructor(message = 'Not Implemented') {
     super(501, message);
-    console.log('You must be joking... A teapot? Really?');
   }
 }
 
