@@ -1,7 +1,7 @@
 import { CoremoduleMetadataKey } from '../constants';
-import { CoreModuleMetadata, ClassConstructor } from '../types';
-export function CoreModule(metadata: CoreModuleMetadata) {
-  return function (target: ClassConstructor) {
+import { CoreModuleMetadata } from '../types';
+export function CoreModule(metadata: CoreModuleMetadata): ClassDecorator {
+  return function (target) {
     if (Reflect.hasMetadata(CoremoduleMetadataKey, target)) {
       throw new Error('You have used core module more then once');
     }

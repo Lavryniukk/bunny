@@ -1,7 +1,10 @@
 import { QueryParamsMetadataKey } from '../constants';
 import { ParamsMetadata } from '../types';
-export const Param = (paramName: string) => {
-  return (target: Object, propertyKey: string | symbol, parameterIndex: number) => {
+export const Param = (paramName: string): ParameterDecorator => {
+  return (target: Object, propertyKey, parameterIndex: number) => {
+    if (!propertyKey) {
+      throw Error('Decorator without propertyKey, wait, what?');
+    }
     const existingParams: ParamsMetadata = Reflect.getOwnMetadata(QueryParamsMetadataKey, target, propertyKey) || [];
 
     existingParams.push({

@@ -9,5 +9,3 @@ export class Logger {
     console.log(`\x1b[37m [ℹ️] ${new Date().toLocaleTimeString()} ---> \x1b[0m ${message} `, rest);
   }
 }
-
-Logger.log('heloo wolrd');

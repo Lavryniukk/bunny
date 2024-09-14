@@ -1,8 +1,8 @@
-import { ModuleMetadata, ClassConstructor, InjectionToken } from '../types';
+import { ModuleMetadata, InjectionToken } from '../types';
 import { INJECTION_TOKEN_MK, ModuleMetadataKey } from '../constants';
 
-export function Module(metadata: ModuleMetadata) {
-  return function (target: ClassConstructor) {
+export function Module(metadata: ModuleMetadata): ClassDecorator {
+  return (target) => {
     const processedProviders = metadata.providers?.map((provider) => {
       if (typeof provider === 'function') {
         const token = Reflect.getMetadata(INJECTION_TOKEN_MK, provider) || new InjectionToken(provider.name);
