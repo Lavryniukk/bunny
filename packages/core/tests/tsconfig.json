@@ -1,11 +1,9 @@
 {
   "compilerOptions": {
-    "outDir": "./dist",
     "declaration": true,
     "skipLibCheck": true,
-    "declarationDir": "./dist",
-    "rootDir": "./src",
-    "baseUrl": "./src",
+    "rootDir": "../",
+    "baseUrl": "../",
     "module": "ESNext",
     "target": "ESNext",
     "moduleResolution": "node",
@@ -17,6 +15,7 @@
       "*": ["./*"]
     }
   },
-  "include": ["./src/**/*" ],
+  "include": ["./**/*" ],
   "exclude": ["node_modules", "dist"]
 }
+

@@ -15,7 +15,7 @@ export type Dependency = {
 };
 
 export class DependencyContainer {
-  private dependencies: Map<Token, Dependency> = new Map();
+  _dependencies: Map<Token, Dependency> = new Map();
   private resolving: Set<Token> = new Set();
 
   register<T>(
@@ -27,7 +27,20 @@ export class DependencyContainer {
       throw new Error('Invalid registration: token and target must be provided');
     }
     const dep = { target, lifecycle, instance: null };
-    this.dependencies.set(token, dep);
+    this._dependencies.set(token, dep);
+  }
+
+  getInjections(tokens: Token[], dependency: Dependency) {
+    return tokens.map((t: Token, i: number) => {
+      const injectToken = Reflect.getMetadata(INJECT_MK + i, dependency.target);
+      if (injectToken) {
+        return this.resolve(injectToken);
+      }
+      const token = Reflect.getMetadata(INJECTION_TOKEN_MK, t);
+      if (token) {
+        return this.resolve(token);
+      }
+    });
   }
 
   resolve<T>(token: Token): T {
@@ -35,7 +48,7 @@ export class DependencyContainer {
     if (isAlreadyResolving) {
       throw new CircularDependencyError(token);
     }
-    let dependency = this.dependencies.get(token);
+    let dependency = this._dependencies.get(token);
     if (!dependency) {
       throw new DependencyResolutionError(token);
     }
@@ -48,16 +61,7 @@ export class DependencyContainer {
     try {
       const tokens =
         Reflect.getMetadata('design:paramtypes', dependency.target) || [];
-      const injections = tokens.map((t: Token, i: number) => {
-        const injectToken = Reflect.getMetadata(INJECT_MK + i, dependency.target);
-        if (injectToken) {
-          return this.resolve(injectToken);
-        }
-        const token = Reflect.getMetadata(INJECTION_TOKEN_MK, t);
-        if (token) {
-          return this.resolve(token);
-        }
-      });
+      const injections = this.getInjections(tokens, dependency);
 
       const instance = new dependency.target(...injections);
       if (dependency.lifecycle === 'singleton') {

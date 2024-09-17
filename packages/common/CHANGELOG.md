@@ -1,5 +1,11 @@
 # @bunny-ts/common
 
+## 0.2.1
+
+### Patch Changes
+
+- Type fix with decorators, typo in logger fixed
+
 ## 0.2.0
 
 ### Minor Changes

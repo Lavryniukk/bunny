@@ -1,6 +1,6 @@
 {
   "name": "@bunny-ts/core",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "author": "Lev Lavryniuk <leoyt109@gmail.com>",
   "repository": {
     "type": "git",
@@ -9,7 +9,7 @@
   },
   "main": "./dist/index.js",
   "dependencies": {
-    "@bunny-ts/common": "^0.2.0",
+    "@bunny-ts/common": "^0.2.1",
     "reflect-metadata": "^0.2.2"
   },
   "devDependencies": {

@@ -1,12 +1,11 @@
+import 'reflect-metadata';
 import {
   BunnyRequest,
   ForbiddenException,
   GuardsMetadata,
   HttpRequestHandler,
-  Logger,
 } from '@bunny-ts/common';
 import { DependencyContainer } from 'core';
-import { Dependency } from 'core/dependency-container';
 import { error } from 'response';
 export type Middleware = (
   req: BunnyRequest,

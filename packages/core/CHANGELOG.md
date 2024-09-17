@@ -1,5 +1,13 @@
 # @bunny-ts/core
 
+## 0.2.1
+
+### Patch Changes
+
+- Added tests for main modules in core package
+- Updated dependencies
+  - @bunny-ts/common@0.2.1
+
 ## 0.2.0
 
 ### Minor Changes

@@ -1,0 +1,655 @@
+// File ./tests/dependency-container.spec.ts
+import { describe, expect, beforeEach, test } from 'bun:test';
+import { DependencyContainer } from '../src/core/dependency-container';
+import { Controller, Injectable, InjectionToken } from '@bunny-ts/common';
+
+@Injectable()
+class TestService {
+  test() {
+    return true;
+  }
+}
+
+@Controller()
+class TestController {
+  constructor(readonly t: TestService) {}
+}
+
+describe('DependencyContainer', () => {
+  let dc: DependencyContainer;
+  let serviceInjectionToken: InjectionToken<any>;
+  let controllerInjectionToken: InjectionToken<any>;
+  beforeEach(() => {
+    dc = new DependencyContainer();
+    serviceInjectionToken = DependencyContainer.createToken(TestService.name);
+
+    controllerInjectionToken = DependencyContainer.createToken(TestController.name);
+  });
+  test('to be defined', () => {
+    expect(dc).toBeDefined();
+  });
+  describe('register', () => {
+    test('Register service', () => {
+      dc.register(serviceInjectionToken, TestService);
+
+      const dependency = dc._dependencies.get(serviceInjectionToken);
+
+      expect(dependency).toBeDefined();
+      expect(dependency).toEqual({
+        target: TestService,
+        instance: null,
+        lifecycle: 'singleton',
+      });
+    });
+    test('Register controller', () => {
+      dc.register(controllerInjectionToken, TestController);
+
+      const dependency = dc._dependencies.get(controllerInjectionToken);
+
+      expect(dependency).toBeDefined();
+      expect(dependency).toEqual({
+        target: TestController,
+        instance: null,
+        lifecycle: 'singleton',
+      });
+    });
+  });
+
+  describe('resolve', () => {
+    test('Resolve service', () => {
+      dc.register(serviceInjectionToken, TestService);
+
+      const service: TestService = dc.resolve(serviceInjectionToken);
+      const res = service.test();
+
+      expect(service).toBeDefined();
+      expect(res).toBeTrue();
+    });
+
+    test('Resolve controller', () => {
+      dc.register(controllerInjectionToken, TestController);
+
+      const controller = dc.resolve(controllerInjectionToken);
+      const service = dc.resolve();
+    });
+  });
+});
+// File ./src/middleware/index.ts
+import {
+  BunnyRequest,
+  ForbiddenException,
+  GuardsMetadata,
+  HttpRequestHandler,
+  Logger,
+} from '@bunny-ts/common';
+import { DependencyContainer } from 'core';
+import { Dependency } from 'core/dependency-container';
+import { error } from 'response';
+export type Middleware = (
+  req: BunnyRequest,
+  next: (req: BunnyRequest) => Promise<Response> | Response
+) => Response | Promise<Response>;
+
+export class MiddlewareFactory {
+  dc: DependencyContainer;
+  middlewares: Middleware[] = [];
+  constructor(depContainer: DependencyContainer) {
+    this.dc = depContainer;
+  }
+  addMiddleware(middleware: Middleware) {
+    this.middlewares.push(middleware);
+  }
+
+  async applyMiddleware(
+    req: Request,
+    handlerData: HttpRequestHandler
+  ): Promise<Response> {
+    const { handler, controllerToken, handlerName } = handlerData;
+    const controller = this.dc.resolve<any>(controllerToken);
+    let i = 0;
+    const next = (request: BunnyRequest): Response | Promise<Response> => {
+      if (i === this.middlewares.length) {
+        return handler(request);
+      }
+      const middleware = this.middlewares[i];
+      i++;
+      return middleware(request, next);
+    };
+    const guardsMetadata: GuardsMetadata = Reflect.getMetadata(
+      'guards',
+      controller.constructor,
+      handlerName
+    );
+    const isAllowed = guardsMetadata.guards.every((GuardConstructor) => {
+      const guard = new GuardConstructor();
+      return guard.canActivate(req);
+    });
+    if (!isAllowed) {
+      return error(new ForbiddenException());
+    }
+
+    const response: Response = await next(req as BunnyRequest);
+    return response;
+  }
+}
+// File ./src/index.ts
+export { Bunny } from './core';
+// File ./src/request/index.ts
+import {
+  RouteMetadata,
+  BodyParamsMetadata,
+  BodyParamsMetadataKey,
+  ParamsMetadata,
+  QueryParamsMetadataKey,
+} from '@bunny-ts/common';
+
+export class RequestParameterParser {
+  constructor(private readonly controller: any) {}
+
+  public async parseRequestParams(
+    req: Request,
+    routeMetadata: RouteMetadata
+  ): Promise<any[]> {
+    const { handlerName, method } = routeMetadata;
+    const methodParameters: any[] = [];
+
+    if (method !== 'GET') {
+      await this.parseBodyParameters(req, handlerName, methodParameters);
+    }
+
+    await this.parseQueryParameters(req, routeMetadata, methodParameters);
+
+    return methodParameters;
+  }
+
+  async parseBodyParameters(
+    req: Request,
+    handlerName: string,
+    methodParameters: any[]
+  ): Promise<void> {
+    const body = await req.json();
+    const bodyParametersMetadata = this.getBodyParamsMetadata(handlerName);
+
+    bodyParametersMetadata.forEach(({ index, name }) => {
+      methodParameters[index] = name ? body[name] : body;
+    });
+  }
+
+  async parseQueryParameters(
+    req: Request,
+    routeMetadata: RouteMetadata,
+    methodParameters: any[]
+  ): Promise<void> {
+    const parametersMetadata = this.getQueryParamsMetadata(
+      routeMetadata.handlerName
+    );
+
+    if (parametersMetadata.length > 0) {
+      const foundParams = this.parseParams(req, routeMetadata);
+      parametersMetadata.forEach((paramMetadata) => {
+        methodParameters[paramMetadata.index] = foundParams[paramMetadata.name];
+      });
+    }
+  }
+
+  getBodyParamsMetadata(handlerName: string): BodyParamsMetadata {
+    return (
+      Reflect.getOwnMetadata(
+        BodyParamsMetadataKey,
+        this.controller.constructor.prototype,
+        handlerName
+      ) || []
+    );
+  }
+
+  getQueryParamsMetadata(handlerName: string): ParamsMetadata {
+    return (
+      Reflect.getOwnMetadata(
+        QueryParamsMetadataKey,
+        this.controller.constructor.prototype,
+        handlerName
+      ) || []
+    );
+  }
+
+  parseParams(req: Request, routeMetadata: RouteMetadata): Record<string, string> {
+    const { pathname } = new URL(req.url);
+    const routeChunks = routeMetadata.path.split('/');
+    const urlChunks = pathname.split('/');
+
+    if (routeChunks.length !== urlChunks.length) {
+      return {};
+    }
+
+    const params: Record<string, string> = {};
+
+    for (let i = 0; i < routeChunks.length; i++) {
+      const routeChunk = routeChunks[i];
+      const urlChunk = urlChunks[i];
+
+      if (routeChunk.startsWith(':')) {
+        params[routeChunk.slice(1)] = urlChunk;
+      } else if (routeChunk !== urlChunk) {
+        return {};
+      }
+    }
+
+    return params;
+  }
+}
+// File ./src/router/index.ts
+import { RequestParameterParser } from '../request';
+import { error, json } from '../response';
+import {
+  ClassConstructor,
+  HttpRequestHandler,
+  HttpRequestHandlerMethod,
+  RouteMetadata,
+  RoutesMetadataArray,
+  RequestMethod,
+  Exception,
+  InternalServerErrorException,
+  Logger,
+  InjectionToken,
+} from '@bunny-ts/common';
+
+export class Router {
+  routes: Map<RequestMethod, HttpRequestHandler[]> = new Map();
+
+  getHandler(
+    requestPath: string,
+    method: RequestMethod
+  ): HttpRequestHandler | undefined {
+    const matchingRoutes = this.routes.get(method) || [];
+    return matchingRoutes.find((route) => this.matchRoute(route.path, requestPath));
+  }
+
+  registerController(
+    controllerInstance: any,
+    controllerToken: InjectionToken<any>
+  ): void {
+    Logger.success(`Registering controller ~ ${controllerToken.name}`);
+    const routeMetadata: RoutesMetadataArray =
+      Reflect.getMetadata('routes', controllerInstance.constructor) || [];
+    const requestParameterParser = new RequestParameterParser(controllerInstance);
+    routeMetadata.forEach((rm) =>
+      this.registerRoute(
+        rm,
+        controllerInstance,
+        requestParameterParser,
+        controllerToken
+      )
+    );
+  }
+  registerRoute(
+    routeMetadata: RouteMetadata,
+    controllerInstance: any,
+    requestParameterParser: RequestParameterParser,
+    controllerToken: InjectionToken<any>
+  ): void {
+    const { path, handlerName, method } = routeMetadata;
+
+    const handlerFunction = this.createHandlerFunction(
+      controllerInstance,
+      handlerName,
+      routeMetadata,
+      requestParameterParser
+    );
+
+    if (!this.routes.has(method)) {
+      this.routes.set(method, []);
+    }
+
+    const newRoute = {
+      method,
+      handler: handlerFunction,
+      path,
+      handlerName,
+      controllerToken,
+    };
+    this.routes.get(method)!.push(newRoute);
+    Logger.success(`Registered [${method}] ~ ${path}`);
+  }
+
+  createHandlerFunction(
+    controller: any,
+    handlerName: string,
+    routeMetadata: RouteMetadata,
+    requestParameterParser: RequestParameterParser
+  ): HttpRequestHandlerMethod {
+    return async (req: Request) => {
+      try {
+        const methodParameters = await requestParameterParser.parseRequestParams(
+          req,
+          routeMetadata
+        );
+        const result = await controller[handlerName].apply(
+          controller,
+          methodParameters
+        );
+        return json(result);
+      } catch (e) {
+        return this.handleError(e);
+      }
+    };
+  }
+
+  handleError(e: unknown): Response {
+    if (Exception.isException(e)) {
+      return error(e as Exception);
+    } else {
+      console.error('Unhandled error:', e);
+      return error(new InternalServerErrorException());
+    }
+  }
+
+  matchRoute(route: string, requestPath: string): boolean {
+    const routeChunks = route.split('/');
+    const urlChunks = requestPath.split('/');
+
+    if (routeChunks.length !== urlChunks.length) {
+      return false;
+    }
+
+    return routeChunks.every(
+      (routeChunk, i) => routeChunk.startsWith(':') || routeChunk === urlChunks[i]
+    );
+  }
+}
+// File ./src/errors/index.ts
+import { Token, InjectionToken } from '@bunny-ts/common';
+
+class DependencyError extends Error {
+  constructor(message: string, token: Token) {
+    if (token instanceof InjectionToken) {
+      super(`${message}: ${token.name}`);
+    } else {
+      if (!token) {
+        super(`Token not found : ${message}`);
+      } else {
+        super(`${message}: ${token.toString()}`);
+      }
+    }
+  }
+}
+
+export class CircularDependencyError extends DependencyError {
+  constructor(dependency: Token) {
+    super(`Circular dependency detected`, dependency);
+  }
+}
+
+export class DependencyResolutionError extends DependencyError {
+  constructor(dependency: Token) {
+    super(`Failed to resolve dependency`, dependency);
+  }
+}
+// File ./src/response/index.ts
+import { Exception } from '@bunny-ts/common';
+const HEADERS = {
+  'Content-Type': 'application/json',
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, PATCH',
+  'Access-Control-Allow-Headers': 'Content-Type',
+};
+
+export const json = (data: any, init?: ResponseInit): Response => {
+  return Response.json(data, {
+    ...init,
+    headers: HEADERS,
+  });
+};
+
+export const error = (err: Exception): Response => {
+  return Response.json(
+    { ...err },
+    {
+      status: err.status,
+      headers: HEADERS,
+    }
+  );
+};
+// File ./src/core/module-processor.ts
+import { Router } from 'router';
+import { DependencyContainer } from './dependency-container';
+import {
+  ClassConstructor,
+  ModuleMetadata,
+  ModuleMetadataKey,
+  INJECTION_TOKEN_MK,
+  CoreModuleMetadata,
+  CoremoduleMetadataKey,
+} from '@bunny-ts/common';
+
+export class ModuleProcessor {
+  private container: DependencyContainer;
+  private router: Router;
+
+  constructor(diContainer: DependencyContainer, router: Router) {
+    this.container = diContainer;
+    this.router = router;
+  }
+
+  public processModule(ModuleClass: ClassConstructor) {
+    const metadata: ModuleMetadata =
+      Reflect.getMetadata(ModuleMetadataKey, ModuleClass) || {};
+    const { controllers = [], providers = [] } = metadata;
+
+    providers.forEach((provider) => {
+      if ('provide' in provider) {
+        this.container.register(provider.provide, provider.useClass);
+      } else {
+        const token = this.getInjectionMetadata(provider);
+        this.container.register(token, provider);
+      }
+    });
+
+    controllers.forEach((controller) => {
+      const token = this.getInjectionMetadata(controller);
+      this.container.register(token, controller);
+
+      const controllerInstance = this.container.resolve(token);
+      this.router.registerController(controllerInstance, token);
+    });
+  }
+
+  public getInjectionMetadata(classConstructor: ClassConstructor) {
+    return Reflect.getMetadata(INJECTION_TOKEN_MK, classConstructor);
+  }
+
+  public processCoreModule(CoremoduleClass: ClassConstructor) {
+    const metadata: CoreModuleMetadata =
+      Reflect.getMetadata(CoremoduleMetadataKey, CoremoduleClass) || {};
+    const modules = metadata.modules || [];
+    modules.forEach((module) => {
+      this.processModule(module);
+    });
+  }
+}
+// File ./src/core/index.ts
+
+export {Bunny} from "./bunny"
+export {ModuleProcessor} from "./module-processor"
+export {DependencyContainer} from "./dependency-container"
+// File ./src/core/bunny.ts
+import 'reflect-metadata';
+import { DependencyContainer } from '.';
+import { MiddlewareFactory, Middleware } from '../middleware';
+import { ClassConstructor, RequestMethod } from '@bunny-ts/common';
+import { ModuleProcessor } from './module-processor';
+import { json } from '../response';
+import { Router } from '../router';
+export class Bunny {
+  private readonly router: Router;
+  private readonly middlewareFactory: MiddlewareFactory;
+  private readonly processor: ModuleProcessor;
+  private readonly diContainer: DependencyContainer;
+  constructor(ModuleClass: ClassConstructor) {
+    console.clear();
+    console.log('Starting server');
+    this.diContainer = new DependencyContainer();
+    this.router = new Router();
+    this.processor = new ModuleProcessor(this.diContainer, this.router);
+    this.middlewareFactory = new MiddlewareFactory(this.diContainer);
+    this.processor.processCoreModule(ModuleClass);
+  }
+
+  listen(port: number = 8000, callback: () => void = () => {}) {
+    Bun.serve({
+      port,
+      fetch: async (req) => {
+        const path = new URL(req.url).pathname;
+        const handler = this.router.getHandler(path, req.method as RequestMethod);
+        if (handler) {
+          return await this.middlewareFactory.applyMiddleware(req, handler);
+        }
+        return json({ message: 'Not found', status: 404 }, { status: 404 });
+      },
+    });
+
+    callback();
+  }
+
+  addMiddleware(middleware: Middleware) {
+    this.middlewareFactory.addMiddleware(middleware);
+  }
+}
+// File ./src/core/dependency-container.ts
+import {
+  Token,
+  ClassConstructor,
+  INJECT_MK,
+  INJECTION_TOKEN_MK,
+  InjectionToken,
+} from '@bunny-ts/common';
+import { CircularDependencyError, DependencyResolutionError } from 'errors';
+
+type LifecycleType = 'singleton' | 'transient';
+export type Dependency = {
+  target: ClassConstructor;
+  lifecycle: LifecycleType;
+  instance: any | null;
+};
+
+export class DependencyContainer {
+  _dependencies: Map<Token, Dependency> = new Map();
+  private resolving: Set<Token> = new Set();
+
+  register<T>(
+    token: Token,
+    target: ClassConstructor<T>,
+    lifecycle: LifecycleType = 'singleton'
+  ): void {
+    if (!token || !target) {
+      throw new Error('Invalid registration: token and target must be provided');
+    }
+    const dep = { target, lifecycle, instance: null };
+    this._dependencies.set(token, dep);
+  }
+
+  getInjections(tokens: Token[], dependency: Dependency) {
+    return tokens.map((t: Token, i: number) => {
+      const injectToken = Reflect.getMetadata(INJECT_MK + i, dependency.target);
+      if (injectToken) {
+        return this.resolve(injectToken);
+      }
+      const token = Reflect.getMetadata(INJECTION_TOKEN_MK, t);
+      if (token) {
+        return this.resolve(token);
+      }
+    });
+  }
+
+  resolve<T>(token: Token): T {
+    const isAlreadyResolving = this.resolving.has(token);
+    if (isAlreadyResolving) {
+      throw new CircularDependencyError(token);
+    }
+    let dependency = this._dependencies.get(token);
+    if (!dependency) {
+      throw new DependencyResolutionError(token);
+    }
+    if (dependency.lifecycle === 'singleton' && dependency.instance) {
+      return dependency.instance;
+    }
+
+    this.resolving.add(token);
+
+    try {
+      const tokens =
+        Reflect.getMetadata('design:paramtypes', dependency.target) || [];
+      const injections = this.getInjections(tokens, dependency);
+      const instance = new dependency.target(...injections);
+      if (dependency.lifecycle === 'singleton') {
+        dependency.instance = instance;
+      }
+      return instance;
+    } finally {
+      this.resolving.delete(token);
+    }
+  }
+
+  static createToken<T>(name: string): InjectionToken<T> {
+    return new InjectionToken<T>(name);
+  }
+}
+// File ./package.json
+{
+  "name": "@bunny-ts/core",
+  "version": "0.2.0",
+  "author": "Lev Lavryniuk <leoyt109@gmail.com>",
+  "repository": {
+    "type": "git",
+    "directory": "packages/core",
+    "url": "git+https://github.com/bunny-ts/bunny.git"
+  },
+  "main": "./dist/index.js",
+  "dependencies": {
+    "@bunny-ts/common": "^0.2.0",
+    "reflect-metadata": "^0.2.2"
+  },
+  "devDependencies": {
+    "@types/bun": "^1.1.6",
+    "tsc-alias": "^1.8.10",
+    "tsconfig-paths": "^4.2.0"
+  },
+  "description": "Blazingly fast object-oriented wrapper for Bun",
+  "files": [
+    "dist",
+    " tsconfig.json"
+  ],
+  "keywords": [
+    "bun",
+    "framework"
+  ],
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "rm -rf dist && bun run tsc && tsc-alias"
+  }
+}
+// File ./tsconfig.json
+{
+  "compilerOptions": {
+    "outDir": "./dist",
+    "declaration": true,
+    "skipLibCheck": true,
+    "declarationDir": "./dist",
+    "rootDir": "./src",
+    "baseUrl": "./src",
+    "module": "ESNext",
+    "target": "ESNext",
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "strict": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "paths": {
+      "*": ["./*"]
+    }
+  },
+  "include": ["./src/**/*"],
+  "exclude": ["node_modules", "dist"]
+}
